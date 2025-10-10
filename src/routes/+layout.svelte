@@ -3,8 +3,8 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { invalidate } from '$app/navigation'
  	import { onMount } from 'svelte'
+  
 	
-
 	let { data, children } = $props()
   	let { session, supabase } = $derived(data)
 
@@ -17,6 +17,13 @@
 
 		return () => data.subscription.unsubscribe()
 	})
+
+	const logout = async () => {
+		const { error } = await supabase.auth.signOut()
+		if (error) {
+		console.error(error)
+		}
+  	}
 </script>
 
 <svelte:head>
@@ -25,9 +32,12 @@
 
 <nav>
 	{#if session?.user}
-		<div>Log OUT</div>
+		<div>
+			{session.user.email}
+		</div>
+		<button onclick={logout}>Log out</button>
 	{:else}
-		<div>Log IN</div>
+		<a href="/auth">Log In</a>
 	{/if}
 </nav>
 {@render children?.()}
