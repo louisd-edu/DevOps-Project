@@ -40,5 +40,7 @@
 		<a href="/auth">Log In</a>
 	{/if}
 </nav>
+<div class="m-auto w-[80vw] ">
 {@render children?.()}
 
+</div>
