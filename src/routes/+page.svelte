@@ -2,7 +2,7 @@
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
     import { Chip } from "$lib";
     import { onMount, tick } from 'svelte';
-    import { goto } from '$app/navigation';
+    import { supabase } from '$lib/supabaseClient';
 
     let { data } = $props();
 
@@ -25,20 +25,26 @@
 
     $effect(() => { tick().then(() => updateFades()); });
 
-    // Current query state from server
-    const currentQ = $derived<string>(data.query?.q ?? '');
-    const currentArea = $derived<string | null>(data.query?.area ?? null);
-    const currentCuisine = $derived<string | null>(data.query?.cuisine ?? null);
-    const currentSortBy = $derived<'name' | 'time'>(data.query?.sortBy ?? 'name');
-    const currentSortDir = $derived<'asc' | 'desc'>(data.query?.sortDir ?? 'asc');
-    const currentPage = $derived<number>(data.query?.page ?? 1);
-    const pageSize = $derived<number>(data.query?.pageSize ?? 12);
-    const total = $derived<number>(data.query?.total ?? 0);
+    // Local interactive state (no URL params)
+    let currentQ = $state<string>(data.query?.q ?? '');
+    let currentArea = $state<string | null>(data.query?.area ?? null);
+    let currentCuisine = $state<string | null>(data.query?.cuisine ?? null);
+    let currentSortBy = $state<'name' | 'time'>(data.query?.sortBy ?? 'name');
+    let currentSortDir = $state<'asc' | 'desc'>(data.query?.sortDir ?? 'asc');
+    let currentPage = $state<number>(1);
+    let pageSize = $state<number>(12);
+
+    // Results state
+    let recipes = $state<any[]>(data.recipes ?? []);
+    let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
-    // Local input model for search box, synced from currentQ
-    let searchInput = $state(currentQ);
-    $effect(() => { searchInput = currentQ; });
+    // Local input model for search box (independent from currentQ)
+    let searchInput = $state<string>(data.query?.q ?? '');
+    function handleSearchInput(e: Event) {
+        const target = e.target as HTMLInputElement | null;
+        searchInput = target?.value ?? '';
+    }
 
     // Debounced search: query after 300ms of inactivity
     $effect(() => {
@@ -46,11 +52,11 @@
         const next = searchInput.trim();
         const cur = currentQ.trim();
         if (next === cur) return; // no change, skip
-        // Only query if empty (clear) or length >= 2
-        if (next.length > 0 && next.length < 2) return;
+        if (next.length > 0 && next.length < 2) return; // minimum length guard
         const t = setTimeout(() => {
-            updateQuery({ q: next, page: 1 });
-        }, 200);
+            currentQ = next;
+            currentPage = 1;
+        }, 300);
         return () => clearTimeout(t);
     });
 
@@ -61,91 +67,188 @@
     const allBroaderAreas: string[] = $derived(
         Array.from(new Set((data.cuisines ?? []).flatMap((c) => c.broader_areas ?? [])))
     );
-    const sortedBroaderAreas: string[] = $derived(
-        allBroaderAreas.slice().sort((a, b) => {
+    const sortedBroaderAreas: string[] = $derived((() => {
+        const arr = allBroaderAreas.slice();
+        arr.sort((a, b) => {
             const ca = areaRecipeCounts[a] ?? 0; const cb = areaRecipeCounts[b] ?? 0;
             if (cb !== ca) return cb - ca; return a.localeCompare(b);
-        })
-    );
+        });
+        return arr;
+    })());
 
     // Cuisines to display under chips
-    const cuisinesForSelectedArea = $derived(
-        (
+    const cuisinesForSelectedArea = $derived((() => {
+        const list = (
             currentArea
                 ? (data.cuisines ?? []).filter((c) => (c.broader_areas ?? []).includes(currentArea as string))
                 : showAllCuisines
                     ? (data.cuisines ?? [])
                     : []
-        ).sort((a, b) => a.name.localeCompare(b.name))
-    );
+        );
+        return list.slice().sort((a, b) => a.name.localeCompare(b.name));
+    })());
 
-    function updateQuery(updates: Partial<{ q: string; area: string | null; cuisine: string | null; sortBy: 'name'|'time'; sortDir: 'asc'|'desc'; page: number; pageSize: number; }>) {
-        const params = new URLSearchParams();
-        if (data.query?.q) params.set('q', data.query.q);
-        if (data.query?.area) params.set('area', data.query.area);
-        if (data.query?.cuisine) params.set('cuisine', data.query.cuisine);
-        params.set('sortBy', data.query?.sortBy ?? 'name');
-        params.set('sortDir', data.query?.sortDir ?? 'asc');
-        params.set('page', String(data.query?.page ?? 1));
-        params.set('pageSize', String(data.query?.pageSize ?? 12));
-        // apply updates
-        if (updates.q !== undefined) {
-            const v = updates.q.trim(); if (v) params.set('q', v); else params.delete('q');
+    // Helper to map storage paths to public URLs
+    async function prepareImageUrls(path: string | null | undefined, bucket: string) {
+        if (!path) return null;
+        if (/^https?:\/\//.test(path)) return path;
+        try {
+            const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path);
+            return publicData?.publicUrl ?? null;
+        } catch (e) {
+            void e;
+            console.warn('Error getting public URL for', path, e);
+            return null;
         }
-        if (updates.area !== undefined) {
-            if (updates.area) params.set('area', updates.area); else params.delete('area');
-        }
-        if (updates.cuisine !== undefined) {
-            if (updates.cuisine) params.set('cuisine', updates.cuisine); else params.delete('cuisine');
-        }
-        if (updates.sortBy) params.set('sortBy', updates.sortBy);
-        if (updates.sortDir) params.set('sortDir', updates.sortDir);
-        if (updates.page !== undefined) params.set('page', String(updates.page));
-        if (updates.pageSize !== undefined) params.set('pageSize', String(updates.pageSize));
-        // navigate
-        goto(`?${params.toString()}`, { invalidateAll: true });
     }
 
+    // Build cuisine list for current area
+    function cuisinesForArea(area: string | null): string[] {
+        if (!area) return [];
+        return (data.cuisines ?? [])
+            .filter((c) => (c.broader_areas ?? []).includes(area))
+            .map((c) => c.name);
+    }
+
+    // Fetch recipes from Supabase based on current interactive state
+    let fetchId = 0;
+    async function fetchRecipes() {
+        if (typeof window === 'undefined') return; // avoid SSR
+        const id = ++fetchId;
+
+        let rq = supabase
+            .from('recipes')
+            .select(
+                `
+                id,
+                user_id,
+                recipename,
+                recipeimageurl,
+                cuisine,
+                cookingtime,
+                profiles(id,username,avatar_url)
+                `,
+                { count: 'exact' }
+            );
+
+        // Apply cuisine/area filter
+        if (currentCuisine) {
+            rq = rq.eq('cuisine', currentCuisine);
+        } else if (currentArea) {
+            const names = cuisinesForArea(currentArea);
+            if (names.length) rq = rq.in('cuisine', names);
+            else rq = rq.eq('cuisine', '__none__');
+        }
+
+        // Full-text search with prefix matching
+        const q = currentQ.trim().toLowerCase();
+        if (q) {
+            const tokens = q.match(/[a-z0-9]+/g) ?? [];
+            if (tokens.length) {
+                const tsQuery = tokens.map((t) => `${t}:*`).join(' & ');
+                rq = rq.filter('search_tsv', 'fts', tsQuery);
+            }
+        }
+
+        // Sorting
+        if (currentSortBy === 'name') {
+            rq = rq.order('recipename', { ascending: currentSortDir === 'asc' });
+        } else {
+            rq = rq.order('cookingtime', { ascending: currentSortDir === 'asc', nullsFirst: false });
+        }
+
+        // Pagination
+        const from = (currentPage - 1) * pageSize;
+        const to = from + pageSize - 1;
+        rq = rq.range(from, to);
+
+        const { data: rows, error, count } = await rq;
+        if (id !== fetchId) return; // out-of-date response
+
+        if (error) {
+            console.error('Error loading recipes (client):', error.message);
+            recipes = [];
+            total = 0;
+            return;
+        }
+
+        // Prepare image URLs
+        const mapped = await Promise.all(
+            (rows ?? []).map(async (r) => {
+                const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+                const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
+                const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
+                return { ...r, profileAvatar, recipeImage };
+            })
+        );
+        recipes = mapped;
+        total = count ?? 0;
+    }
+
+    // Kick initial client-side fetch to ensure consistency
+    onMount(() => { fetchRecipes(); });
+
+    // Refetch when any interactive state changes
+    $effect(() => {
+        // access dependencies so the effect re-runs
+        void currentQ; void currentArea; void currentCuisine; void currentSortBy; void currentSortDir; void currentPage; void pageSize;
+        if (typeof window === 'undefined') return;
+        fetchRecipes();
+    });
+
     function onSearchSubmit() {
-        updateQuery({ q: searchInput, page: 1 });
+        currentQ = searchInput;
+        currentPage = 1;
     }
 
     function onSortByChange(e: Event) {
         const v = (e.target as HTMLSelectElement).value as 'name'|'time';
-        updateQuery({ sortBy: v, page: 1 });
+        currentPage = 1;
+        currentSortBy = v;
     }
     function onSortDirChange(e: Event) {
         const v = (e.target as HTMLSelectElement).value as 'asc'|'desc';
-        updateQuery({ sortDir: v, page: 1 });
+        currentPage = 1;
+        currentSortDir = v;
     }
 
     function gotoPage(n: number) {
         const np = Math.min(totalPages, Math.max(1, n));
-        if (np !== currentPage) updateQuery({ page: np });
+        if (np !== currentPage) currentPage = np;
     }
 
     function toggleBroaderArea(area: string) {
         showAllCuisines = false;
         const nextArea = currentArea === area ? null : area;
-        updateQuery({ area: nextArea, cuisine: null, page: 1 });
+        currentArea = nextArea;
+        currentCuisine = null;
+        currentPage = 1;
     }
 
     function toggleCuisine(name: string) {
         const next = currentCuisine === name ? null : name;
-        updateQuery({ cuisine: next, page: 1 });
+        currentCuisine = next;
+        currentPage = 1;
     }
 
     function toggleAllAreas() {
         // UI only: does not filter recipes; toggles cuisine visibility
         showAllCuisines = !showAllCuisines;
-        // Also clear area/cuisine filters if desired; keeping recipes unfiltered by area
-        updateQuery({ area: null, cuisine: null, page: 1 });
+        // Clear area/cuisine; keep recipes unfiltered by area
+        currentArea = null;
+        currentCuisine = null;
+        currentPage = 1;
     }
 
     function clearFilters() {
         showAllCuisines = false;
         searchInput = '';
-        updateQuery({ q: '', area: null, cuisine: null, sortBy: 'name', sortDir: 'asc', page: 1 });
+        currentQ = '';
+        currentArea = null;
+        currentCuisine = null;
+        currentSortBy = 'name';
+        currentSortDir = 'asc';
+        currentPage = 1;
     }
 
     // Input focus management
@@ -158,7 +261,7 @@
             try {
                 const len = searchEl.value?.length ?? 0;
                 searchEl.setSelectionRange(len, len);
-            } catch {}
+            } catch (e) { void e }
         }
     }
 
@@ -166,7 +269,7 @@
 
     $effect(() => {
         // When query-driven state changes, ensure the search stays focused
-        (() => {/* track deps */})(currentQ, currentArea, currentCuisine, currentSortBy, currentSortDir, currentPage);
+        void currentQ; void currentArea; void currentCuisine; void currentSortBy; void currentSortDir; void currentPage;
         tick().then(() => { updateFades(); focusSearch(); });
     });
 </script>
@@ -174,14 +277,13 @@
 <!-- Controls -->
 <div class=" mx-auto p-3 space-y-4">
     <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center flex-wrap gap-2">
             <input
                 placeholder="Search recipes or cuisines..."
                 value={searchInput}
-                oninput={(e) => searchInput = (e.target as HTMLInputElement).value}
+                oninput={handleSearchInput}
                 onkeydown={(e) => (e.key === 'Enter' || e.key === 'NumpadEnter') && onSearchSubmit()}
                 bind:this={searchEl}
-                autofocus
                 class="px-3 py-2 rounded border border-slate-300 focus:outline-none focus:ring focus:ring-slate-200 w-full"
             />
             <div class="flex items-center gap-2">
@@ -193,7 +295,7 @@
                     <option value="asc">Asc</option>
                     <option value="desc">Desc</option>
                 </select>
-                <button class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300" onclick={onSearchSubmit}>Search</button>
+                <!--button class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300" onclick={onSearchSubmit}>Search</button-->
                 <button class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300" onclick={clearFilters}>Clear</button>
             </div>
         </div>
@@ -247,11 +349,11 @@
     </div>
 
     <!-- Recipes grid -->
-    <div class="grid xl:grid-cols-3 gap-2 w-fit m-auto ">
-        {#each data.recipes as recipe (recipe.id)}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4 gap-1 mx-auto">
+        {#each recipes as recipe (recipe.id)}
             <RecipeComponent {recipe} />
         {/each}
-        {#if !(data.recipes && data.recipes.length)}
+        {#if !recipes.length}
             <p class="text-slate-500 p-4">No recipes match your filters.</p>
         {/if}
     </div>
