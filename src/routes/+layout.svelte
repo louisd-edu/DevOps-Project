@@ -41,6 +41,6 @@
 	{/if}
 </nav>
 <div class="m-auto w-[80vw] ">
-{@render children?.()}
+    {@render children?.()}
 
 </div>
