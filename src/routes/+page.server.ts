@@ -16,6 +16,8 @@ export const load: PageServerLoad = async () => {
 	user_id,
 	recipename,
 	recipeimageurl,
+	cuisine,
+	cookingtime,
 	profiles(id,username,avatar_url)
 
 	`

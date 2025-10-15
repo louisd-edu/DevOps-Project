@@ -13,4 +13,6 @@ export type Recipe = {
     profiles: Profile
     recipeImage: string | null
     profileAvatar: string | null
+    cuisine: string | null
+    cookingtime: string | null
 }
