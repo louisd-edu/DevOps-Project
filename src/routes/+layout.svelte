@@ -29,7 +29,7 @@
 
 <nav>
 </nav>
-<div class="md:m-auto md:w-[80vw] ">
+<div class="m-auto md:w-[80vw] w-[95vw] ">
     <NavProfile {profile}></NavProfile>
 
     {@render children?.()}

@@ -41,7 +41,7 @@
 </script>
 
 <nav class="w-full mt-3">
-  <div class="flex items-center justify-between bg-[#cdea86] rounded-full md:px-3 py-2  md:py-3 gap-2">
+  <div class="flex items-center justify-between bg-[#cdea86] rounded-full md:px-3 px-2 md:pl-0 pl-5 py-2  md:py-3 gap-2">
     <!-- Left spacer (optional actions) -->
     <div class="flex-1 min-w-0"></div>
 
