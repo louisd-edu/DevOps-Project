@@ -1,10 +1,17 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick } from 'svelte';
-    import { supabase } from '$lib/supabaseClient';
+    import { onMount, tick, setContext, getContext, onDestroy } from 'svelte';
+    import { supabase as supabaseFallback } from '$lib/supabaseClient';
+    import { writable, type Writable } from 'svelte/store';
+    import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
     let { data } = $props();
+
+    // Use the Supabase client from layout context if available (shares auth session)
+    const ctxClient = getContext<any>('supabase');
+    const ctxSession = getContext<any>('session');
+    const sb = ctxClient ?? supabaseFallback;
 
     // UI-only toggle to show all cuisines when "All areas" chip is active
     let showAllCuisines = $state(false);
@@ -93,7 +100,7 @@
         if (!path) return null;
         if (/^https?:\/\//.test(path)) return path;
         try {
-            const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path);
+            const { data: publicData } = await sb.storage.from(bucket).getPublicUrl(path);
             return publicData?.publicUrl ?? null;
         } catch (e) {
             void e;
@@ -110,13 +117,95 @@
             .map((c) => c.name);
     }
 
+    // Favorites context (store + API)
+    const favoriteIdsStore: Writable<Set<string>> = writable(new Set());
+    let currentUserId = $state<string | null>(ctxSession?.user?.id ?? null);
+
+    // Keep local snapshot of favorites to avoid stale reads inside updates
+    let favSnapshot = $state<Set<string>>(new Set());
+    const favUnsub = favoriteIdsStore.subscribe((v) => { favSnapshot = v; });
+    onDestroy(() => { favUnsub?.(); });
+
+    // Keep currentUserId in sync with auth changes
+    onMount(() => {
+        const { data: sub } = sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+            const nextId = session?.user?.id ?? null;
+            const changed = nextId !== currentUserId;
+            currentUserId = nextId;
+            if (changed && currentUserId) {
+                // refresh favorites when user logs in
+                void loadFavorites();
+            }
+        });
+        return () => sub?.subscription?.unsubscribe?.();
+    });
+
+    setContext('favorites', {
+        store: favoriteIdsStore,
+        toggleFavorite: async (recipeId: string | number) => {
+            if (!currentUserId) {
+                const { data: userRes } = await sb.auth.getUser();
+                currentUserId = userRes?.user?.id ?? null;
+            }
+            if (!currentUserId) {
+                if (typeof window !== 'undefined') alert('Please sign in to add favorites.');
+                console.warn('User not logged in; cannot favorite');
+                return;
+            }
+            const key = String(recipeId);
+            const isFav = favSnapshot.has(key);
+            if (isFav) {
+                const { error } = await sb
+                    .from('favorites')
+                    .delete()
+                    .eq('userid', currentUserId)
+                    .eq('recipeid', recipeId);
+                if (error) {
+                    console.warn('Failed to remove favorite:', error.message);
+                    if (typeof window !== 'undefined') alert(`Could not remove favorite: ${error.message}`);
+                    return;
+                }
+                favoriteIdsStore.update((s) => { const n = new Set(s); n.delete(key); return n; });
+            } else {
+                const { error } = await sb
+                    .from('favorites')
+                    .insert({ userid: currentUserId, recipeid: recipeId });
+                if (error) {
+                    console.warn('Failed to add favorite:', error.message);
+                    if (typeof window !== 'undefined') alert(`Could not add favorite: ${error.message}`);
+                    return;
+                }
+                favoriteIdsStore.update((s) => { const n = new Set(s); n.add(key); return n; });
+            }
+        }
+    });
+
+    async function loadFavorites() {
+        const uid = currentUserId ?? (await sb.auth.getUser()).data?.user?.id ?? null;
+        currentUserId = uid;
+        if (!uid) {
+            favoriteIdsStore.set(new Set());
+            return;
+        }
+        const { data: favs, error } = await sb
+            .from('favorites')
+            .select('recipeid')
+            .eq('userid', uid);
+        if (error) {
+            console.warn('Failed to load favorites:', error.message);
+            favoriteIdsStore.set(new Set());
+            return;
+        }
+        favoriteIdsStore.set(new Set((favs ?? []).map((r: { recipeid: string | number }) => String(r.recipeid))));
+    }
+
     // Fetch recipes from Supabase based on current interactive state
     let fetchId = 0;
     async function fetchRecipes() {
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        let rq = supabase
+        let rq = sb
             .from('recipes')
             .select(
                 `
@@ -174,19 +263,23 @@
 
         // Prepare image URLs
         const mapped = await Promise.all(
-            (rows ?? []).map(async (r) => {
+            (rows ?? []).map(async (r: any) => {
                 const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
                 const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
-                return { ...r, profileAvatar, recipeImage };
+                return { ...r, profiles: profile, profileAvatar, recipeImage };
             })
         );
         recipes = mapped;
         total = count ?? 0;
+
+        // Refresh favorites visibility for new page of recipes
+        // (no-op if user not logged in)
+        void loadFavorites();
     }
 
     // Kick initial client-side fetch to ensure consistency
-    onMount(() => { fetchRecipes(); });
+    onMount(() => { fetchRecipes(); loadFavorites(); });
 
     // Refetch when any interactive state changes
     $effect(() => {

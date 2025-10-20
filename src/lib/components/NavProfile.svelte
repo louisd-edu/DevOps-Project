@@ -22,6 +22,10 @@
         avatarSrc = data?.publicUrl ?? null;
     });
 
+    function goUser() {
+        // eslint-disable-next-line svelte/no-navigation-without-resolve
+        goto('/user/' + encodeURIComponent(profile?.username ?? ''));
+    }
     function goAuth() {
         // eslint-disable-next-line svelte/no-navigation-without-resolve
         goto('/auth');
@@ -54,6 +58,7 @@
     <div class="flex-1 min-w-0 flex items-center justify-end ">
       {#if profile}
           <div class="flex flex-col max-w-[60vw] sm:max-w-[40vw] mr-3 min-w-0">
+
             <span class="text-base md:text-lg font-bold truncate min-w-0">{profile.username ?? 'User'}</span>
             <div class="flex items-center gap-2 shrink-0">
               <div class="h-2 w-24 md:w-32 rounded-full bg-gray-300 overflow-hidden">
@@ -63,7 +68,7 @@
             </div>
           </div>
         {#if avatarSrc}
-          <img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" />
+            <button class="" onclick={goUser()}><img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" /></button>
         {/if}
       {:else}
         <button type="button" class="text-sm md:text-base text-slate-700 hover:text-slate-900" onclick={goAuth}>Sign in</button>

@@ -15,15 +15,22 @@
 	let website: string = $state('')
 	let avatarUrl: string | undefined = $state<string | undefined>(undefined)
 
-	// keep the above state in sync when `profile` changes
+	// keep the above state in sync when `profile` or `form` changes
 	$effect(() => {
-		fullName = profile?.full_name ?? ''
-		username = profile?.username ?? ''
-		website = profile?.website ?? ''
-	avatarUrl = profile?.avatar_url ?? undefined
+		fullName = form?.fullName ?? profile?.full_name ?? ''
+		username = form?.username ?? profile?.username ?? ''
+		website = form?.website ?? profile?.website ?? ''
+		avatarUrl = profile?.avatar_url ?? undefined
 	})
 
-	// ...
+	// normalize username as lowercase with no spaces (silent enforcement, no error UI)
+	function normalizeUsername(v: string): string {
+		return v.toLowerCase().replace(/\s+/g, '')
+	}
+	$effect(() => {
+		const norm = normalizeUsername(username ?? '')
+		if (norm !== (username ?? '')) username = norm
+	})
 
 	const handleSubmit: SubmitFunction = () => {
 		loading = true
@@ -39,6 +46,13 @@
 			update()
 		}
 	}
+
+	function handleUsernameInput(e: Event) {
+		const t = e.currentTarget as HTMLInputElement
+		const norm = normalizeUsername(t.value)
+		if (t.value !== norm) t.value = norm
+		username = norm
+	}
 </script>
 
 <div class="form-widget">
@@ -49,21 +63,16 @@
 		use:enhance={handleSubmit}
 		bind:this={profileForm}
 	>
-
-		// ...
-
 		<div class="form-widget">
-        // ...
-		<AvatarUpload
-			{supabase}
-			bind:url={avatarUrl}
-			size={10}
-			onupload={() => {
-				profileForm.requestSubmit();
-			}}
-		/>
-// ...
-</div>
+			<AvatarUpload
+				{supabase}
+				bind:url={avatarUrl}
+				size={10}
+				onupload={() => {
+					profileForm.requestSubmit();
+				}}
+			/>
+		</div>
 
 		<div>
 			<label for="email">Email</label>
@@ -77,7 +86,16 @@
 
 		<div>
 			<label for="username">Username</label>
-			<input id="username" name="username" type="text" value={form?.username ?? username} />
+			<input
+				id="username"
+				name="username"
+				type="text"
+				bind:value={username}
+				autocomplete="username"
+				autocapitalize="none"
+				spellcheck={false}
+				oninput={handleUsernameInput}
+			/>
 		</div>
 
 		<div>
@@ -101,3 +119,7 @@
 		</div>
 	</form>
 </div>
+
+<style>
+	/* Removed inline error UI since we enforce silently */
+</style>
