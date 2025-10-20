@@ -1,11 +1,10 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick, setContext, getContext, onDestroy } from 'svelte';
+    import { onMount, tick, setContext, getContext } from 'svelte';
     import { supabase as supabaseFallback } from '$lib/supabaseClient';
-    import { writable, type Writable } from 'svelte/store';
-    import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
     import {prepareImageUrls} from "$lib/components/prepareImageUrls";
+    import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
 
     let { data } = $props();
 
@@ -13,6 +12,11 @@
     const ctxClient = getContext<any>('supabase');
     const ctxSession = getContext<any>('session');
     const sb = ctxClient ?? supabaseFallback;
+
+    // Initialize reusable favorites/saved manager and provide contexts for children
+    const favSaved = useFavoritesAndSaved(sb);
+    setContext('favorites', favSaved.favoritesCtx);
+    setContext('saved', favSaved.savedCtx);
 
     // UI-only toggle to show all cuisines when "All areas" chip is active
     let showAllCuisines = $state(false);
@@ -105,139 +109,6 @@
             .map((c) => c.name);
     }
 
-    // Favorites context (store + API)
-    const favoriteIdsStore: Writable<Set<string>> = writable(new Set());
-    let currentUserId = $state<string | null>(ctxSession?.user?.id ?? null);
-
-    // Saved context (store + API)
-    const savedIdsStore: Writable<Set<string>> = writable(new Set());
-
-    // Keep local snapshots to avoid stale reads
-    let favSnapshot = $state<Set<string>>(new Set());
-    const favUnsub = favoriteIdsStore.subscribe((v) => { favSnapshot = v; });
-    let savedSnapshot = $state<Set<string>>(new Set());
-    const savedUnsub = savedIdsStore.subscribe((v) => { savedSnapshot = v; });
-    onDestroy(() => { favUnsub?.(); savedUnsub?.(); });
-
-    // Keep currentUserId in sync with auth changes
-    onMount(() => {
-        const { data: sub } = sb.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-            const nextId = session?.user?.id ?? null;
-            const changed = nextId !== currentUserId;
-            currentUserId = nextId;
-            if (changed && currentUserId) {
-                void loadFavorites();
-                void loadSaved();
-            }
-        });
-        return () => sub?.subscription?.unsubscribe?.();
-    });
-
-    setContext('favorites', {
-        store: favoriteIdsStore,
-        toggleFavorite: async (recipeId: string | number) => {
-            if (!currentUserId) {
-                const { data: userRes } = await sb.auth.getUser();
-                currentUserId = userRes?.user?.id ?? null;
-            }
-            if (!currentUserId) {
-                if (typeof window !== 'undefined') alert('Please sign in to add favorites.');
-                console.warn('User not logged in; cannot favorite');
-                return;
-            }
-            const key = String(recipeId);
-            const isFav = favSnapshot.has(key);
-            if (isFav) {
-                const { error } = await sb
-                    .from('favorites')
-                    .delete()
-                    .eq('userid', currentUserId)
-                    .eq('recipeid', recipeId);
-                if (error) {
-                    console.warn('Failed to remove favorite:', error.message);
-                    if (typeof window !== 'undefined') alert(`Could not remove favorite: ${error.message}`);
-                    return;
-                }
-                favoriteIdsStore.update((s) => { const n = new Set(s); n.delete(key); return n; });
-            } else {
-                const { error } = await sb
-                    .from('favorites')
-                    .insert({ userid: currentUserId, recipeid: recipeId });
-                if (error) {
-                    console.warn('Failed to add favorite:', error.message);
-                    if (typeof window !== 'undefined') alert(`Could not add favorite: ${error.message}`);
-                    return;
-                }
-                favoriteIdsStore.update((s) => { const n = new Set(s); n.add(key); return n; });
-            }
-        }
-    });
-
-    setContext('saved', {
-        store: savedIdsStore,
-        toggleSaved: async (recipeId: string | number) => {
-            if (!currentUserId) {
-                const { data: userRes } = await sb.auth.getUser();
-                currentUserId = userRes?.user?.id ?? null;
-            }
-            if (!currentUserId) {
-                if (typeof window !== 'undefined') alert('Please sign in to save recipes.');
-                console.warn('User not logged in; cannot save');
-                return;
-            }
-            const key = String(recipeId);
-            const isSaved = savedSnapshot.has(key);
-            if (isSaved) {
-                const { error } = await sb
-                    .from('saved')
-                    .delete()
-                    .eq('userid', currentUserId)
-                    .eq('recipeid', recipeId);
-                if (error) {
-                    console.warn('Failed to remove saved:', error.message);
-                    if (typeof window !== 'undefined') alert(`Could not remove saved: ${error.message}`);
-                    return;
-                }
-                savedIdsStore.update((s) => { const n = new Set(s); n.delete(key); return n; });
-            } else {
-                const { error } = await sb
-                    .from('saved')
-                    .insert({ userid: currentUserId, recipeid: recipeId });
-                if (error) {
-                    console.warn('Failed to save recipe:', error.message);
-                    if (typeof window !== 'undefined') alert(`Could not save recipe: ${error.message}`);
-                    return;
-                }
-                savedIdsStore.update((s) => { const n = new Set(s); n.add(key); return n; });
-            }
-        }
-    });
-
-
-    async function loadFavorites() {
-        const uid = currentUserId ?? (await sb.auth.getUser()).data?.user?.id ?? null;
-        currentUserId = uid;
-        if (!uid) { favoriteIdsStore.set(new Set()); return; }
-        const { data: favs, error } = await sb
-            .from('favorites')
-            .select('recipeid')
-            .eq('userid', uid);
-        if (error) { console.warn('Failed to load favorites:', error.message); favoriteIdsStore.set(new Set()); return; }
-        favoriteIdsStore.set(new Set((favs ?? []).map((r: { recipeid: string | number }) => String(r.recipeid))));
-    }
-
-    async function loadSaved() {
-        const uid = currentUserId ?? (await sb.auth.getUser()).data?.user?.id ?? null;
-        currentUserId = uid;
-        if (!uid) { savedIdsStore.set(new Set()); return; }
-        const { data: rows, error } = await sb
-            .from('saved')
-            .select('recipeid')
-            .eq('userid', uid);
-        if (error) { console.warn('Failed to load saved:', error.message); savedIdsStore.set(new Set()); return; }
-        savedIdsStore.set(new Set((rows ?? []).map((r: { recipeid: string | number }) => String(r.recipeid))));
-    }
-
     // Fetch recipes from Supabase based on current interactive state
     let fetchId = 0;
     async function fetchRecipes() {
@@ -311,12 +182,19 @@
         );
         recipes = mapped;
         total = count ?? 0;
-        void loadFavorites();
-        void loadSaved();
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
     }
 
-    // Kick initial client-side fetch to ensure consistency
-    onMount(() => { fetchRecipes(); loadFavorites(); loadSaved(); });
+    // Kick initial client-side fetch to ensure consistency and hydrate favorites/saved
+    onMount(() => {
+        favSaved.setUserId(ctxSession?.user?.id ?? null);
+        const unsub = favSaved.syncAuth();
+        void fetchRecipes();
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
+        return () => { unsub?.(); favSaved.destroy(); };
+    });
 
     // Refetch when any interactive state changes
     $effect(() => {
@@ -455,10 +333,10 @@
                 {/each}
             </div>
             {#if showLeftFade}
-                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
             {#if showRightFade}
-                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
         </div>
         {/if}
