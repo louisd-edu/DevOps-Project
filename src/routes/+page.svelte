@@ -1,12 +1,22 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
-    import RecipeInteractionProvider from "$lib/components/RecipeInteractionProvider.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick } from 'svelte';
-    import { supabase } from "$lib/supabaseClient";
-    import { buildRecipeQuery, transformRecipeResults } from "$lib/queryBuilders/recipeQuery";
+    import { onMount, tick, setContext, getContext } from 'svelte';
+    import { supabase as supabaseFallback } from '$lib/supabaseClient';
+    import {prepareImageUrls} from "$lib/components/prepareImageUrls";
+    import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
 
     let { data } = $props();
+
+    // Use the Supabase client from layout context if available (shares auth session)
+    const ctxClient = getContext<any>('supabase');
+    const ctxSession = getContext<any>('session');
+    const sb = ctxClient ?? supabaseFallback;
+
+    // Initialize reusable favorites/saved manager and provide contexts for children
+    const favSaved = useFavoritesAndSaved(sb);
+    setContext('favorites', favSaved.favoritesCtx);
+    setContext('saved', favSaved.savedCtx);
 
     // UI-only toggle to show all cuisines when "All areas" chip is active
     let showAllCuisines = $state(false);
@@ -37,7 +47,7 @@
     let pageSize = $state<number>(12);
 
     // Results state
-    let recipes = $state(data.recipes ?? []);
+    let recipes = $state<any[]>(data.recipes ?? []);
     let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -105,25 +115,53 @@
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        // Determine cuisines to filter by
-        let cuisineFilter: string[] = [];
+        let rq = sb
+            .from('recipes')
+            .select(
+                `
+                id,
+                user_id,
+                recipename,
+                recipeimageurl,
+                cuisine,
+                cookingtime,
+                profiles(id,username,avatar_url)
+                `,
+                { count: 'exact' }
+            );
+
+        // Apply cuisine/area filter
         if (currentCuisine) {
-            cuisineFilter = [currentCuisine];
+            rq = rq.eq('cuisine', currentCuisine);
         } else if (currentArea) {
-            cuisineFilter = cuisinesForArea(currentArea);
+            const names = cuisinesForArea(currentArea);
+            if (names.length) rq = rq.in('cuisine', names);
+            else rq = rq.eq('cuisine', '__none__');
         }
 
-        // Build query using shared query builder
-        const rq = buildRecipeQuery(supabase, {
-            cuisines: cuisineFilter,
-            searchText: currentQ,
-            sortBy: currentSortBy,
-            sortDir: currentSortDir,
-            page: currentPage,
-            pageSize: pageSize,
-        });
+        // Full-text search with prefix matching
+        const q = currentQ.trim().toLowerCase();
+        if (q) {
+            const tokens = q.match(/[a-z0-9]+/g) ?? [];
+            if (tokens.length) {
+                const tsQuery = tokens.map((t) => `${t}:*`).join(' & ');
+                rq = rq.filter('search_tsv', 'fts', tsQuery);
+            }
+        }
 
-        const { data: row, error, count } = await rq;
+        // Sorting
+        if (currentSortBy === 'name') {
+            rq = rq.order('recipename', { ascending: currentSortDir === 'asc' });
+        } else {
+            rq = rq.order('cookingtime', { ascending: currentSortDir === 'asc', nullsFirst: false });
+        }
+
+        // Pagination
+        const from = (currentPage - 1) * pageSize;
+        const to = from + pageSize - 1;
+        rq = rq.range(from, to);
+
+        const { data: rows, error, count } = await rq;
         if (id !== fetchId) return; // out-of-date response
 
         if (error) {
@@ -133,13 +171,29 @@
             return;
         }
 
-        recipes = row ? transformRecipeResults(row) : [];
+        // Prepare image URLs
+        const mapped = await Promise.all(
+            (rows ?? []).map(async (r: any) => {
+                const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+                const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
+                const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
+                return { ...r, profiles: profile, profileAvatar, recipeImage };
+            })
+        );
+        recipes = mapped;
         total = count ?? 0;
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
     }
 
-    // Kick initial client-side fetch
+    // Kick initial client-side fetch to ensure consistency and hydrate favorites/saved
     onMount(() => {
+        favSaved.setUserId(ctxSession?.user?.id ?? null);
+        const unsub = favSaved.syncAuth();
         void fetchRecipes();
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
+        return () => { unsub?.(); favSaved.destroy(); };
     });
 
     // Refetch when any interactive state changes
@@ -228,7 +282,6 @@
     });
 </script>
 
-<RecipeInteractionProvider supabase={supabase} userId={data.user?.id ?? null}>
 <!-- Controls -->
 <div class=" mx-auto p-3 space-y-4">
     <div class="flex flex-col gap-2">
@@ -324,4 +377,3 @@
         </button>
     </div>
 </div>
-</RecipeInteractionProvider>
