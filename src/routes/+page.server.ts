@@ -1,11 +1,11 @@
 // src/routes/+page.server.ts
 import { fail } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
-import { supabase } from "$lib/supabaseClient";
 import type {Recipe} from "$lib/types/Recipe";
 import type { Cuisine } from '$lib/types/Cuisine';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  const { supabase } = locals
   // Defaults (do not read from URL)
   const q = '';
   const area: string | null = null;
@@ -15,11 +15,11 @@ export const load: PageServerLoad = async () => {
   const pageParam = 1;
   const pageSizeParam = 12;
 
-  // Load cuisines first
-  const { data: cuisinesData, error: cuisinesError } = await supabase
-    .from('cuisines')
-    .select('name, broader_areas')
-    .returns<Cuisine[]>();
+    // Load cuisines first
+    const { data: cuisinesData, error: cuisinesError } = await supabase
+      .from('cuisines')
+      .select('name, broader_areas')
+      .returns<Cuisine[]>();
 
   if (cuisinesError) {
     console.error('Error loading cuisines:', cuisinesError.message);
@@ -87,7 +87,7 @@ export const load: PageServerLoad = async () => {
     if (!path) return null
     if (/^https?:\/\//.test(path)) return path
     try {
-      const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path)
+      const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(path)
       return publicData?.publicUrl ?? null
     } catch (e) {
       console.warn('Error getting public URL for', path, e)
@@ -97,9 +97,10 @@ export const load: PageServerLoad = async () => {
 
   const recipesWithImages = await Promise.all(
     (data ?? []).map(async (r) => {
-      const profileAvatar = await prepareImageUrls(r.profiles?.avatar_url, 'avatars')
+      const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+      const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars')
       const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages')
-      return { ...r, profileAvatar, recipeImage }
+      return { ...r, profiles: profile, profileAvatar, recipeImage }
     })
   )
 
