@@ -2,7 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { invalidate } from '$app/navigation'
- 	import { onMount } from 'svelte'
+ 	import { onMount, setContext } from 'svelte'
     import NavProfile from "$lib/components/NavProfile.svelte";
   
 	
@@ -11,6 +11,10 @@
   	const supabase = $derived(data.supabase)
     // Read profile in a type-safe way even if the generated type hasn't picked it up yet
     const profile = $derived(((data as unknown) as { profile?: any }).profile ?? null)
+
+    // Expose supabase and session via context for children
+    setContext('supabase', supabase)
+    setContext('session', session)
 
 	onMount(() => {
 		const { data: sub } = supabase.auth.onAuthStateChange((_, newSession) => {
