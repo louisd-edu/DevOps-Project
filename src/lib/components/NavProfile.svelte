@@ -30,6 +30,10 @@
         // eslint-disable-next-line svelte/no-navigation-without-resolve
         goto('/auth');
     }
+    function goHome() {
+        // eslint-disable-next-line svelte/no-navigation-without-resolve
+        goto('/');
+    }
 
     let levelPct: number = $state(0);
 
@@ -51,7 +55,10 @@
 
     <!-- Center logo -->
     <div class="shrink-0 order-first md:order-none">
+        <button onclick={goHome}>
+
       <img src={yumlogo} class="h-8 md:h-10" alt="logo" />
+        </button>
     </div>
 
     <!-- Right profile area -->
@@ -68,7 +75,7 @@
             </div>
           </div>
         {#if avatarSrc}
-            <button class="" onclick={goUser()}><img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" /></button>
+            <button class="" onclick={goUser}><img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" /></button>
         {/if}
       {:else}
         <button type="button" class="text-sm md:text-base text-slate-700 hover:text-slate-900" onclick={goAuth}>Sign in</button>

@@ -1,4 +1,4 @@
-// src/routes/+page.server.ts
+// src/routes/+layout.server.ts
 import { fail } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
 import { supabase } from "$lib/supabaseClient";
@@ -104,29 +104,9 @@ export const load: PageServerLoad = async ({ url }) => {
     };
   }
 
-  // Prepare public image URLs
-  async function prepareImageUrls(path: string | null | undefined, bucket: string) {
-    if (!path) return null
-    if (/^https?:\/\//.test(path)) return path
-    try {
-      const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path)
-      return publicData?.publicUrl ?? null
-    } catch (e) {
-      console.warn('Error getting public URL for', path, e)
-      return null
-    }
-  }
-
-  const recipesWithImages = await Promise.all(
-    (data ?? []).map(async (r) => {
-      const profileAvatar = await prepareImageUrls(r.profiles?.avatar_url, 'avatars')
-      const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages')
-      return { ...r, profileAvatar, recipeImage }
-    })
-  )
 
   return {
-    recipes: recipesWithImages,
+    recipes: data,
     cuisines: cuisinesData ?? [],
     broaderAreaCounts,
     query: { q, area, cuisine: cuisineParam, sortBy: sortByParam, sortDir: sortDirParam, page: pageParam, pageSize: pageSizeParam, total: count ?? 0 }
