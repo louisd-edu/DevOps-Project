@@ -12,10 +12,10 @@
     isDark = !isDark;
     if (isDark) {
       document.documentElement.setAttribute('theme', 'dark-mode');
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('theme', 'dark-mode');
     } else {
       document.documentElement.removeAttribute('theme');
-      localStorage.setItem('theme', 'light');
+      localStorage.setItem('theme', 'light-mode');
     }
   }
 </script>
