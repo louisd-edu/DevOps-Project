@@ -1,33 +1,25 @@
-<head>
-    <link id="css" rel="stylesheet" href="./Styles/login.css" />
-    <script src="./Scripts/login.js"></script>
-</head>
-<body>
-    <div class="login-window">
-        <h1>Please Enter Your Credentials</h1>
-        <div class="container">
-            <div class="login-content">
-                <form>
-                    <input type="text" class="textField" placeholder="Username/E-Mail" required><br>
-                    <input type="password" class="textField" placeholder="Password" required><br>
-                    <input type="submit" class="buttons" id="login-btn" value="Login">
-                </form>
-            </div>
-            <div class="register-content">
-                <form>
-                    <input type="text" class="textField" placeholder="E-Mail" required><br>
-                    <input type="text" class="textField" placeholder="Username" required><br>
-                    <input type="password" class="textField" placeholder="Password" required><br>
-                    <input type="submit" class="buttons" id="register-btn" value="Register">
-                </form>
-            </div>
-        </div>
-    </div>
-    <button id="theme-toggle" aria-label="Toggle Theme">
-        <img id="theme-icon" src="/images/light_toggle.svg" alt="Toggle theme" />
-    </button>
-</body>
-<style>
+<script>
+  import { onMount } from 'svelte';
+  let isDark = false;
+  onMount(() => {
+    const theme_state = localStorage.getItem('theme');
+    if (theme_state === 'dark') {
+      isDark = true;
+      document.documentElement.setAttribute('theme', 'dark-mode');
+    }
+  });
+  function toggleTheme() {
+    isDark = !isDark;
+    if (isDark) {
+      document.documentElement.setAttribute('theme', 'dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }
+</script>
+<style global>
   :root {
     --login-window-bg: linear-gradient(rgba(180, 180, 180, 0.25) 0%, rgba(235, 235, 235, 0.4) 100%);
     --text-colour: rgb(64, 53, 77);
@@ -147,10 +139,10 @@
   }
 
   #register-btn {
-    color: hsl(273, 61%, 95%);
-    border: 1px solid hsl(268, 50%, 75%);
-    background: linear-gradient(180deg, rgb(137, 104, 176) 0%, rgb(83, 60, 110) 100%);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 10px hsl(268, 80%, 80%);
+    color: var(--register-text-colour);
+    border: var(--register-border-colour);
+    background: var(--register-btn-colour);
+    box-shadow: var(--register-btn-shadow);
   }
 
 #theme-toggle {
@@ -172,3 +164,31 @@
   height: 24px;
 }
 </style>
+<body>
+    <div class="login-window">
+        <h1>Please Enter Your Credentials</h1>
+        <div class="container">
+            <div class="login-content">
+                <form>
+                    <input type="text" class="textField" placeholder="Username/E-Mail" required><br>
+                    <input type="password" class="textField" placeholder="Password" required><br>
+                    <input type="submit" class="buttons" id="login-btn" value="Login">
+                </form>
+            </div>
+            <div class="register-content">
+                <form>
+                    <input type="text" class="textField" placeholder="E-Mail" required><br>
+                    <input type="text" class="textField" placeholder="Username" required><br>
+                    <input type="password" class="textField" placeholder="Password" required><br>
+                    <input type="submit" class="buttons" id="register-btn" value="Register">
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</body>
+<footer>
+    <button id="theme-toggle" aria-label="Toggle Theme" on:click={toggleTheme}>
+        <img id="theme-icon" src={isDark ? '/images/dark_toggle.svg' : '/images/light_toggle.svg'} alt="Toggle theme"/>
+    </button>
+</footer>
