@@ -1,25 +1,4 @@
-<script>
-  import { onMount } from 'svelte';
-  let isDark = false;
-  onMount(() => {
-    const theme_state = localStorage.getItem('theme');
-    if (theme_state === 'dark') {
-      isDark = true;
-      document.documentElement.setAttribute('theme', 'dark-mode');
-    }
-  });
-  function toggleTheme() {
-    isDark = !isDark;
-    if (isDark) {
-      document.documentElement.setAttribute('theme', 'dark-mode');
-      localStorage.setItem('theme', 'dark-mode');
-    } else {
-      document.documentElement.removeAttribute('theme');
-      localStorage.setItem('theme', 'light-mode');
-    }
-  }
-</script>
-<style global>
+<style>
   :root {
     --login-window-bg: linear-gradient(rgba(180, 180, 180, 0.25) 0%, rgba(235, 235, 235, 0.4) 100%);
     --text-colour: rgb(64, 53, 77);
@@ -66,6 +45,7 @@
     margin-bottom: 10px;
     font-weight: bold;
     text-align: center;
+    font-size: 3vh;
   }
 
   .login-window {
@@ -144,25 +124,6 @@
     background: var(--register-btn-colour);
     box-shadow: var(--register-btn-shadow);
   }
-
-#theme-toggle {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 48px;
-  height: 48px;
-  padding: 5px;
-  border-radius: 50%;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.35));
-}
-
-#theme-icon {
-  width: 24px;
-  height: 24px;
-}
 </style>
 <body>
     <div class="login-window">
@@ -185,10 +146,4 @@
             </div>
         </div>
     </div>
-    
 </body>
-<footer>
-    <button id="theme-toggle" aria-label="Toggle Theme" on:click={toggleTheme}>
-        <img id="theme-icon" src={isDark ? '/images/dark_toggle.svg' : '/images/light_toggle.svg'} alt="Toggle theme"/>
-    </button>
-</footer>
