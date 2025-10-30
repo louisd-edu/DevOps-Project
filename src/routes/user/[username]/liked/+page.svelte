@@ -3,12 +3,12 @@
     import { getContext, onMount, setContext } from 'svelte';
     import { supabase as supabaseFallback } from '$lib/supabaseClient';
     import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
+    import type { Recipe } from '$lib/types/Recipe';
+    import type { SupabaseClient, Session } from '@supabase/supabase-js';
+    let { data } = $props<{ data: { likedrecipes: Recipe[] } }>();
 
-    let { data } = $props<{ data: { likedrecipes: any[] } }>();
-
-    // Use Supabase and session from layout context if available
-    const ctxClient = getContext<any>('supabase');
-    const ctxSession = getContext<any>('session');
+    const ctxClient = getContext<SupabaseClient>('supabase');
+    const ctxSession = getContext<Session | null>('session');
     const sb = ctxClient ?? supabaseFallback;
 
     // Initialize favorites/saved manager and expose contexts
@@ -24,10 +24,9 @@
         void favSaved.loadSaved();
         return () => { unsub?.(); favSaved.destroy(); };
     });
+
 </script>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    {#each data.likedrecipes as recipe}
-        <RecipeComponent {recipe} />
-    {/each}
-</div>
+{#each data.likedrecipes as recipe (recipe.id)}
+    <RecipeComponent {recipe} />
+{/each}

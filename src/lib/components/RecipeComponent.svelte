@@ -47,7 +47,7 @@
 
 </script>
 
-<div class="bg-gray-200 p-2 rounded-[28px] sm:rounded-[40px]">
+<div class="bg-gray-200 p-2 rounded-[28px] min-w-fit sm:rounded-[40px]">
     <div
         class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2"
         style={image ? `background-image: url('${image}')` : undefined}
@@ -75,7 +75,7 @@
     </div>
     <div class="p-2 sm:p-4 sm:pt-1 pt-1">
         <div class="mb-2">
-            <div class="font-bold text-xl sm:text-2xl break-words leading-snug">{recipe.recipename}</div>
+            <div class="font-bold text-xl sm:text-2xl text-nowrap leading-snug">{recipe.recipename}</div>
 
             <div class="text-gray-600 flex flex-wrap gap-2 mt-1">
                 <Chip>

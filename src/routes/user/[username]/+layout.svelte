@@ -29,11 +29,16 @@
 
             <div class="font-bold text-4xl">{profile.displayname}</div>
             <div>@{profile.username}</div>
+            <div>
+                <form method="POST" action="/account?/signout">
+                    <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900">Log out</button>
+                </form>
+            </div>
         </div>
     </div>
 
 </div>
-<div class="mt-5 mb-4 px-[136px]">
+<div class="mt-5 mb-4 lg:px-10">
     <button
       class={`p-3 rounded-full transition-colors ${isMy ? 'bg-green-300 text-white' : 'bg-gray-50 hover:bg-green-100'}`}
       onclick={() => go(`/user/${profile.username}`)}
@@ -54,6 +59,8 @@
     </button>
 
     <div class="mt-3">
-        {@render children?.()}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            {@render children?.()}
+        </div>
     </div>
 </div>

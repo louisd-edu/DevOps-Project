@@ -56,7 +56,8 @@ export const actions: Actions = {
     const { session } = await safeGetSession()
     if (session) {
       await supabase.auth.signOut()
-      redirect(303, '/')
     }
+    // Always redirect to home after attempting sign out
+    throw redirect(303, '/')
   },
 }
