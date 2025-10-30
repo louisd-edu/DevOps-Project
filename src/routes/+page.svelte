@@ -9,8 +9,8 @@
     let { data } = $props();
 
     // Use the Supabase client from layout context if available (shares auth session)
-    const ctxClient = getContext<any>('supabase');
-    const ctxSession = getContext<any>('session');
+    const ctxClient = getContext('supabase');
+    const ctxSession = getContext('session');
     const sb = ctxClient ?? supabaseFallback;
 
     // Initialize reusable favorites/saved manager and provide contexts for children

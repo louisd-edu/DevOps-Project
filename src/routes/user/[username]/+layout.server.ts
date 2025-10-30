@@ -21,15 +21,7 @@ export const load : LayoutServerLoad = async ({locals, params}) => {
         .eq('user_id', profile.id);
 
 
-    // Fetch favorites joined with recipes, then map to just the recipes array
-    const { data: savedJoined } = await supabase
-        .from('saved')
-        .select('id, recipeid, recipe:recipes(*)')
-        .eq('userid', profile.id);
 
-    const saveddrecipes = (savedJoined ?? [])
-        .map((row: any) => row?.recipe)
-        .filter(Boolean);
 
 
     const avatar = await prepareImageUrls(profile.avatar_url, "avatars");

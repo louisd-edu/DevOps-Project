@@ -1,12 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { writable, type Writable } from 'svelte/store';
 
-export type FavoritesSavedContext = {
-    store: Writable<Set<string>>;
-    toggleFavorite?: (recipeId: string | number) => Promise<void> | void;
-    toggleSaved?: (recipeId: string | number) => Promise<void> | void;
-};
-
 export function useFavoritesAndSaved(sb: SupabaseClient) {
     // Stores exposed to components via context
     const favoriteIdsStore: Writable<Set<string>> = writable(new Set());
@@ -22,7 +16,6 @@ export function useFavoritesAndSaved(sb: SupabaseClient) {
     let currentUserId: string | null = null;
 
     function setUserId(id: string | null) { currentUserId = id; }
-    function getUserId() { return currentUserId; }
 
     async function ensureUserId(): Promise<string | null> {
         if (currentUserId) return currentUserId;
@@ -167,7 +160,6 @@ export function useFavoritesAndSaved(sb: SupabaseClient) {
         loadSaved,
         syncAuth,
         setUserId,
-        getUserId,
         destroy
     } as const;
 }
