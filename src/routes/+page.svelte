@@ -1,10 +1,22 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick } from 'svelte';
-    import { supabase } from '$lib/supabaseClient';
+    import { onMount, tick, setContext, getContext } from 'svelte';
+    import { supabase as supabaseFallback } from '$lib/supabaseClient';
+    import {prepareImageUrls} from "$lib/components/prepareImageUrls";
+    import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
 
     let { data } = $props();
+
+    // Use the Supabase client from layout context if available (shares auth session)
+    const ctxClient = getContext('supabase');
+    const ctxSession = getContext('session');
+    const sb = ctxClient ?? supabaseFallback;
+
+    // Initialize reusable favorites/saved manager and provide contexts for children
+    const favSaved = useFavoritesAndSaved(sb);
+    setContext('favorites', favSaved.favoritesCtx);
+    setContext('saved', favSaved.savedCtx);
 
     // UI-only toggle to show all cuisines when "All areas" chip is active
     let showAllCuisines = $state(false);
@@ -88,19 +100,6 @@
         return list.slice().sort((a, b) => a.name.localeCompare(b.name));
     })());
 
-    // Helper to map storage paths to public URLs
-    async function prepareImageUrls(path: string | null | undefined, bucket: string) {
-        if (!path) return null;
-        if (/^https?:\/\//.test(path)) return path;
-        try {
-            const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path);
-            return publicData?.publicUrl ?? null;
-        } catch (e) {
-            void e;
-            console.warn('Error getting public URL for', path, e);
-            return null;
-        }
-    }
 
     // Build cuisine list for current area
     function cuisinesForArea(area: string | null): string[] {
@@ -116,7 +115,7 @@
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        let rq = supabase
+        let rq = sb
             .from('recipes')
             .select(
                 `
@@ -174,19 +173,28 @@
 
         // Prepare image URLs
         const mapped = await Promise.all(
-            (rows ?? []).map(async (r) => {
+            (rows ?? []).map(async (r: any) => {
                 const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
                 const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
-                return { ...r, profileAvatar, recipeImage };
+                return { ...r, profiles: profile, profileAvatar, recipeImage };
             })
         );
         recipes = mapped;
         total = count ?? 0;
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
     }
 
-    // Kick initial client-side fetch to ensure consistency
-    onMount(() => { fetchRecipes(); });
+    // Kick initial client-side fetch to ensure consistency and hydrate favorites/saved
+    onMount(() => {
+        favSaved.setUserId(ctxSession?.user?.id ?? null);
+        const unsub = favSaved.syncAuth();
+        void fetchRecipes();
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
+        return () => { unsub?.(); favSaved.destroy(); };
+    });
 
     // Refetch when any interactive state changes
     $effect(() => {
@@ -325,10 +333,10 @@
                 {/each}
             </div>
             {#if showLeftFade}
-                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
             {#if showRightFade}
-                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
         </div>
         {/if}

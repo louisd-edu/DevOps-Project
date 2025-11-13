@@ -1,8 +1,4 @@
-export type Profile = {
-    id: string | number
-    username: string | null
-    avatar_url: string | null
-}
+import type { Profile } from './Profile'
 
 export type Recipe = {
     id: string | number
@@ -11,8 +7,7 @@ export type Recipe = {
     recipeimageurl: string | null
     cuisine: string | null
     cookingtime: number | null
-    // the query in +page.server.ts requests a nested profiles object
+    // the query in +layout.server.ts requests a nested profiles object
     profiles: Profile
-    recipeImage: string | null
     profileAvatar: string | null
 }
