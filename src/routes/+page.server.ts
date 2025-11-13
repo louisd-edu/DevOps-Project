@@ -1,19 +1,19 @@
-// src/routes/+page.server.ts
+// src/routes/+layout.server.ts
 import { fail } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
 import { supabase } from "$lib/supabaseClient";
 import type {Recipe} from "$lib/types/Recipe";
 import type { Cuisine } from '$lib/types/Cuisine';
 
-export const load: PageServerLoad = async () => {
-  // Defaults (do not read from URL)
-  const q = '';
-  const area: string | null = null;
-  const cuisineParam: string | null = null;
-  const sortByParam: 'name' | 'time' = 'name';
-  const sortDirParam: 'asc' | 'desc' = 'asc';
-  const pageParam = 1;
-  const pageSizeParam = 12;
+export const load: PageServerLoad = async ({ url }) => {
+  // Parse query params
+  const q = (url.searchParams.get('q') ?? '').trim();
+  const area = url.searchParams.get('area');
+  const cuisineParam = url.searchParams.get('cuisine');
+  const sortByParam = (url.searchParams.get('sortBy') as 'name' | 'time') ?? 'name';
+  const sortDirParam = (url.searchParams.get('sortDir') as 'asc' | 'desc') ?? 'asc';
+  const pageParam = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1') || 1);
+  const pageSizeParam = Math.min(50, Math.max(1, Number.parseInt(url.searchParams.get('pageSize') ?? '12') || 12));
 
   // Load cuisines first
   const { data: cuisinesData, error: cuisinesError } = await supabase
@@ -44,7 +44,7 @@ export const load: PageServerLoad = async () => {
   );
   const broaderAreaCounts = Object.fromEntries(broaderAreaCountsEntries);
 
-  // Build initial recipes query with default sort/pagination
+  // Build recipes query with search, filters, sort, pagination
   let rq = supabase
     .from('recipes')
     .select(
@@ -60,12 +60,34 @@ export const load: PageServerLoad = async () => {
       { count: 'exact' }
     );
 
+  // Apply cuisine filter derived from area or explicit cuisine
+  if (cuisineParam) {
+    rq = rq.eq('cuisine', cuisineParam);
+  } else if (area) {
+    const names = (cuisinesData ?? [])
+      .filter((c) => (c.broader_areas ?? []).includes(area))
+      .map((c) => c.name);
+    if (names.length) rq = rq.in('cuisine', names);
+    else rq = rq.eq('cuisine', '__none__'); // no match safeguard
+  }
+
+  // Apply full-text search with prefix matching using to_tsquery syntax
+  if (q) {
+    const tokens = q.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+    if (tokens.length) {
+      const tsQuery = tokens.map((t) => `${t}:*`).join(' & ');
+      rq = rq.textSearch('search_tsv', tsQuery);
+    }
+  }
+
+  // Sorting
   if (sortByParam === 'name') {
     rq = rq.order('recipename', { ascending: sortDirParam === 'asc' });
   } else {
     rq = rq.order('cookingtime', { ascending: sortDirParam === 'asc', nullsFirst: false });
   }
 
+  // Pagination
   const from = (pageParam - 1) * pageSizeParam;
   const to = from + pageSizeParam - 1;
   rq = rq.range(from, to);
@@ -82,29 +104,9 @@ export const load: PageServerLoad = async () => {
     };
   }
 
-  // Prepare public image URLs
-  async function prepareImageUrls(path: string | null | undefined, bucket: string) {
-    if (!path) return null
-    if (/^https?:\/\//.test(path)) return path
-    try {
-      const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path)
-      return publicData?.publicUrl ?? null
-    } catch (e) {
-      console.warn('Error getting public URL for', path, e)
-      return null
-    }
-  }
-
-  const recipesWithImages = await Promise.all(
-    (data ?? []).map(async (r) => {
-      const profileAvatar = await prepareImageUrls(r.profiles?.avatar_url, 'avatars')
-      const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages')
-      return { ...r, profileAvatar, recipeImage }
-    })
-  )
 
   return {
-    recipes: recipesWithImages,
+    recipes: data,
     cuisines: cuisinesData ?? [],
     broaderAreaCounts,
     query: { q, area, cuisine: cuisineParam, sortBy: sortByParam, sortDir: sortDirParam, page: pageParam, pageSize: pageSizeParam, total: count ?? 0 }
