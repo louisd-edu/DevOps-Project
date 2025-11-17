@@ -9,7 +9,6 @@ import svelteConfig from "./svelte.config.js";
 
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 
-
 export default defineConfig(
   includeIgnoreFile(gitignorePath),
   js.configs.recommended,
