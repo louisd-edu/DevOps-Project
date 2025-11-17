@@ -1,15 +1,12 @@
 import type { LayoutServerLoad } from "./$types";
 import { prepareImageUrls } from "$lib/components/prepareImageUrls";
+import { getProfileByUsername } from "$lib/server/profileQueries";
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
   const { supabase } = locals;
   const { username } = params;
 
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("username", username)
-    .single();
+  const { data: profile, error } = await getProfileByUsername(supabase, username);
 
   if (error || !profile) {
     return { profile: null };
