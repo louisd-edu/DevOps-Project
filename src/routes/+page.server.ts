@@ -2,7 +2,6 @@
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { supabase } from "$lib/supabaseClient";
-import type { Recipe } from "$lib/types/Recipe";
 import type { Cuisine } from "$lib/types/Cuisine";
 
 export const load: PageServerLoad = async ({ url }) => {
