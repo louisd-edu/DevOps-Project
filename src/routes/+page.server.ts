@@ -1,8 +1,9 @@
-// src/routes/+layout.server.ts
+// src/routes/+page.server.ts
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { supabase } from "$lib/supabaseClient";
 import type { Cuisine } from "$lib/types/Cuisine";
+import { buildRecipeQuery } from "$lib/queryBuilders/recipeQuery";
 
 export const load: PageServerLoad = async ({ url }) => {
   // Parse query params
@@ -56,54 +57,25 @@ export const load: PageServerLoad = async ({ url }) => {
   );
   const broaderAreaCounts = Object.fromEntries(broaderAreaCountsEntries);
 
-  // Build recipes query with search, filters, sort, pagination
-  let rq = supabase.from("recipes").select(
-    `
-      id,
-      user_id,
-      recipename,
-      recipeimageurl,
-      cuisine,
-      cookingtime,
-      profiles(id,username,avatar_url)
-      `,
-    { count: "exact" },
-  );
-
-  // Apply cuisine filter derived from area or explicit cuisine
+  // Determine cuisines to filter by
+  let cuisineFilter: string[] = [];
   if (cuisineParam) {
-    rq = rq.eq("cuisine", cuisineParam);
+    cuisineFilter = [cuisineParam];
   } else if (area) {
-    const names = (cuisinesData ?? [])
+    cuisineFilter = (cuisinesData ?? [])
       .filter((c) => (c.broader_areas ?? []).includes(area))
       .map((c) => c.name);
-    if (names.length) rq = rq.in("cuisine", names);
-    else rq = rq.eq("cuisine", "__none__"); // no match safeguard
   }
 
-  // Apply full-text search with prefix matching using to_tsquery syntax
-  if (q) {
-    const tokens = q.toLowerCase().match(/[a-z0-9]+/g) ?? [];
-    if (tokens.length) {
-      const tsQuery = tokens.map((t) => `${t}:*`).join(" & ");
-      rq = rq.textSearch("search_tsv", tsQuery);
-    }
-  }
-
-  // Sorting
-  if (sortByParam === "name") {
-    rq = rq.order("recipename", { ascending: sortDirParam === "asc" });
-  } else {
-    rq = rq.order("cookingtime", {
-      ascending: sortDirParam === "asc",
-      nullsFirst: false,
-    });
-  }
-
-  // Pagination
-  const from = (pageParam - 1) * pageSizeParam;
-  const to = from + pageSizeParam - 1;
-  rq = rq.range(from, to);
+  // Build recipes query using shared query builder
+  const rq = buildRecipeQuery(supabase, {
+    cuisines: cuisineFilter,
+    searchText: q,
+    sortBy: sortByParam,
+    sortDir: sortDirParam,
+    page: pageParam,
+    pageSize: pageSizeParam,
+  });
 
   const { data, error, count } = await rq;
 

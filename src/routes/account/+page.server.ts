@@ -1,5 +1,6 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+import { getAccountProfile } from "$lib/server/profileQueries";
 
 export const load: PageServerLoad = async ({
   locals: { supabase, safeGetSession },
@@ -10,11 +11,7 @@ export const load: PageServerLoad = async ({
     redirect(303, "/");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select(`username, full_name, website, avatar_url`)
-    .eq("id", session.user.id)
-    .single();
+  const { data: profile } = await getAccountProfile(supabase, session.user.id);
 
   return { session, profile };
 };

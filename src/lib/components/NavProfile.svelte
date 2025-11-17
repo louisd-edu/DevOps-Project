@@ -1,25 +1,17 @@
 <script lang="ts">
     import type { Profile } from '$lib/types/Recipe';
-    import { supabase } from '$lib/supabaseClient';
     import { goto } from '$app/navigation';
+    import { prepareImageUrls } from '$lib/components/prepareImageUrls';
     import yumlogo from '$lib/assets/yumlogo.png';
+
     let { profile = null } = $props<{ profile?: Profile | null }>();
-    function normalizePath(p: string): string {
-        let path = p.trim();
-        if (path.startsWith('/')) path = path.slice(1);
-        if (path.startsWith('public/')) path = path.slice('public/'.length);
-        if (path.startsWith('avatars/')) path = path.slice('avatars/'.length);
-        return path;
-    }
 
     let avatarSrc: string | null = $state(null);
     $effect(() => {
         const url = profile?.avatar_url ?? null;
-        if (!url) { avatarSrc = null; return; }
-        if (/^https?:\/\//.test(url)) { avatarSrc = url; return; }
-        const norm = normalizePath(url);
-        const { data } = supabase.storage.from('avatars').getPublicUrl(norm);
-        avatarSrc = data?.publicUrl ?? null;
+        prepareImageUrls(url, 'avatars').then((result) => {
+            avatarSrc = result;
+        });
     });
 
     function goUser() {
