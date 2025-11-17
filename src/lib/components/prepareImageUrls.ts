@@ -7,10 +7,11 @@ import { supabase } from "$lib/supabaseClient";
  */
 function normalizePath(path: string): string {
   let normalized = path.trim();
-  if (normalized.startsWith('/')) normalized = normalized.slice(1);
-  if (normalized.startsWith('public/')) normalized = normalized.slice('public/'.length);
+  if (normalized.startsWith("/")) normalized = normalized.slice(1);
+  if (normalized.startsWith("public/"))
+    normalized = normalized.slice("public/".length);
   // Remove bucket-specific prefixes (avatars/, recipes/, etc.)
-  const bucketPrefixes = ['avatars/', 'recipes/'];
+  const bucketPrefixes = ["avatars/", "recipes/"];
   for (const prefix of bucketPrefixes) {
     if (normalized.startsWith(prefix)) {
       normalized = normalized.slice(prefix.length);

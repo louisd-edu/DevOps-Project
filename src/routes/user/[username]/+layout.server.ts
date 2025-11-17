@@ -6,7 +6,10 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
   const { supabase } = locals;
   const { username } = params;
 
-  const { data: profile, error } = await getProfileByUsername(supabase, username);
+  const { data: profile, error } = await getProfileByUsername(
+    supabase,
+    username,
+  );
 
   if (error || !profile) {
     return { profile: null };
