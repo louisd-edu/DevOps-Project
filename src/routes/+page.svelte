@@ -167,7 +167,7 @@
             return;
         }
 
-
+        recipes = row ?? [];
         total = count ?? 0;
         void favSaved.loadFavorites();
         void favSaved.loadSaved();
