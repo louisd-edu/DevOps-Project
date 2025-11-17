@@ -1,28 +1,27 @@
 // filepath: /Users/leonard/Downloads/DevOps-Project/src/lib/server/fetchUserRecipes.ts
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Recipe } from '$lib/types/Recipe'
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Recipe } from "$lib/types/Recipe";
 
 /**
  * Fetch recipes linked from a user reference table (favorites/saved)
  * by joining the recipes table and returning only the nested recipe objects.
  */
 export async function fetchUserRecipesBy(
-  table: 'favorites' | 'saved',
+  table: "favorites" | "saved",
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
 ): Promise<Recipe[]> {
   const { data, error } = await supabase
     .from(table)
-    .select('id, recipeid, recipe:recipes(*, profiles(*))')
-    .eq('userid', userId)
+    .select("id, recipeid, recipe:recipes(*, profiles(*))")
+    .eq("userid", userId);
 
-  if (error || !data) return []
+  if (error || !data) return [];
 
-  type JoinedRow = { recipe: Recipe | null }
+  type JoinedRow = { recipe: Recipe | null };
   const recipes = (data as JoinedRow[])
     .map((row) => row.recipe)
-    .filter((r): r is Recipe => Boolean(r))
+    .filter((r): r is Recipe => Boolean(r));
 
-  return recipes
+  return recipes;
 }
-

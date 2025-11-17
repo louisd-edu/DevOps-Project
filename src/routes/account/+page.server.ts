@@ -1,40 +1,42 @@
-import { fail, redirect } from '@sveltejs/kit'
-import type { Actions, PageServerLoad } from './$types'
+import { fail, redirect } from "@sveltejs/kit";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
-  const { session } = await safeGetSession()
+export const load: PageServerLoad = async ({
+  locals: { supabase, safeGetSession },
+}) => {
+  const { session } = await safeGetSession();
 
   if (!session) {
-    redirect(303, '/')
+    redirect(303, "/");
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from("profiles")
     .select(`username, full_name, website, avatar_url`)
-    .eq('id', session.user.id)
-    .single()
+    .eq("id", session.user.id)
+    .single();
 
-  return { session, profile }
-}
+  return { session, profile };
+};
 
 export const actions: Actions = {
   update: async ({ request, locals: { supabase, safeGetSession } }) => {
-    const formData = await request.formData()
-    const fullName = formData.get('fullName') as string
-    const username = formData.get('username') as string
-    const website = formData.get('website') as string
-    const avatarUrl = formData.get('avatarUrl') as string
+    const formData = await request.formData();
+    const fullName = formData.get("fullName") as string;
+    const username = formData.get("username") as string;
+    const website = formData.get("website") as string;
+    const avatarUrl = formData.get("avatarUrl") as string;
 
-    const { session } = await safeGetSession()
+    const { session } = await safeGetSession();
 
-    const { error } = await supabase.from('profiles').upsert({
+    const { error } = await supabase.from("profiles").upsert({
       id: session?.user.id,
       full_name: fullName,
       username,
       website,
       avatar_url: avatarUrl,
       updated_at: new Date(),
-    })
+    });
 
     if (error) {
       return fail(500, {
@@ -42,7 +44,7 @@ export const actions: Actions = {
         username,
         website,
         avatarUrl,
-      })
+      });
     }
 
     return {
@@ -50,14 +52,14 @@ export const actions: Actions = {
       username,
       website,
       avatarUrl,
-    }
+    };
   },
   signout: async ({ locals: { supabase, safeGetSession } }) => {
-    const { session } = await safeGetSession()
+    const { session } = await safeGetSession();
     if (session) {
-      await supabase.auth.signOut()
+      await supabase.auth.signOut();
     }
     // Always redirect to home after attempting sign out
-    throw redirect(303, '/')
+    throw redirect(303, "/");
   },
-}
+};

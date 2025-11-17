@@ -47,7 +47,7 @@
     let pageSize = $state<number>(12);
 
     // Results state
-    let recipes = $state<any[]>(data.recipes ?? []);
+    let recipes = $state(data.recipes ?? []);
     let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -173,7 +173,7 @@
 
         // Prepare image URLs
         const mapped = await Promise.all(
-            (rows ?? []).map(async (r: any) => {
+            (rows ?? []).map(async (r) => {
                 const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
                 const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
