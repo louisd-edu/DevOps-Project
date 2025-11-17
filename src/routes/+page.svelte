@@ -4,7 +4,7 @@
     import { Chip } from "$lib";
     import { onMount, tick } from 'svelte';
     import { supabase } from "$lib/supabaseClient";
-    import { buildRecipeQuery } from "$lib/queryBuilders/recipeQuery";
+    import { buildRecipeQuery, transformRecipeResults } from "$lib/queryBuilders/recipeQuery";
 
     let { data } = $props();
 
@@ -133,7 +133,7 @@
             return;
         }
 
-        recipes = row ?? [];
+        recipes = row ? transformRecipeResults(row) : [];
         total = count ?? 0;
     }
 

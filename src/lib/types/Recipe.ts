@@ -1,5 +1,7 @@
 import type { Profile } from "./Profile";
 
+export type { Profile };
+
 export type Recipe = {
   id: string | number;
   user_id: string;

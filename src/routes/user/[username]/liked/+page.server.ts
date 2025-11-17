@@ -6,6 +6,12 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 
   const { profile } = await parent();
 
+  if (!profile) {
+    return {
+      likedrecipes: [],
+    };
+  }
+
   const likedrecipes = await fetchUserRecipesBy(
     "favorites",
     supabase,
