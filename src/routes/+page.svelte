@@ -1,20 +1,16 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick, setContext, getContext } from 'svelte';
-    import { supabase as supabaseFallback } from '$lib/supabaseClient';
-    import {prepareImageUrls} from "$lib/components/prepareImageUrls";
+    import { onMount, tick, setContext } from 'svelte';
     import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
+    import {supabase} from "$lib/supabaseClient";
 
     let { data } = $props();
 
     // Use the Supabase client from layout context if available (shares auth session)
-    const ctxClient = getContext('supabase');
-    const ctxSession = getContext('session');
-    const sb = ctxClient ?? supabaseFallback;
 
     // Initialize reusable favorites/saved manager and provide contexts for children
-    const favSaved = useFavoritesAndSaved(sb);
+    const favSaved = useFavoritesAndSaved(supabase);
     setContext('favorites', favSaved.favoritesCtx);
     setContext('saved', favSaved.savedCtx);
 
@@ -47,7 +43,7 @@
     let pageSize = $state<number>(12);
 
     // Results state
-    let recipes = $state<any[]>(data.recipes ?? []);
+    let recipes = $state(data.recipes ?? []);
     let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -115,7 +111,7 @@
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        let rq = sb
+        let rq = supabase
             .from('recipes')
             .select(
                 `
@@ -161,7 +157,7 @@
         const to = from + pageSize - 1;
         rq = rq.range(from, to);
 
-        const { data: rows, error, count } = await rq;
+        const { data: row, error, count } = await rq;
         if (id !== fetchId) return; // out-of-date response
 
         if (error) {
@@ -171,16 +167,7 @@
             return;
         }
 
-        // Prepare image URLs
-        const mapped = await Promise.all(
-            (rows ?? []).map(async (r: any) => {
-                const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
-                const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
-                const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
-                return { ...r, profiles: profile, profileAvatar, recipeImage };
-            })
-        );
-        recipes = mapped;
+
         total = count ?? 0;
         void favSaved.loadFavorites();
         void favSaved.loadSaved();
@@ -188,7 +175,7 @@
 
     // Kick initial client-side fetch to ensure consistency and hydrate favorites/saved
     onMount(() => {
-        favSaved.setUserId(ctxSession?.user?.id ?? null);
+        favSaved.setUserId(data.user?.id ?? null);
         const unsub = favSaved.syncAuth();
         void fetchRecipes();
         void favSaved.loadFavorites();
