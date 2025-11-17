@@ -4,7 +4,7 @@
     import { prepareImageUrls } from '$lib/components/prepareImageUrls';
     import yumlogo from '$lib/assets/yumlogo.png';
 
-    let { profile = null } = $props<{ profile?: Profile | null }>();
+    let { profile = null } = $props<{ profile?: Partial<Profile> | null }>();
 
     let avatarSrc: string | null = $state(null);
     $effect(() => {

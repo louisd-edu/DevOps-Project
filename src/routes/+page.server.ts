@@ -3,7 +3,10 @@ import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { supabase } from "$lib/supabaseClient";
 import type { Cuisine } from "$lib/types/Cuisine";
-import { buildRecipeQuery } from "$lib/queryBuilders/recipeQuery";
+import {
+  buildRecipeQuery,
+  transformRecipeResults,
+} from "$lib/queryBuilders/recipeQuery";
 
 export const load: PageServerLoad = async ({ url }) => {
   // Parse query params
@@ -99,7 +102,7 @@ export const load: PageServerLoad = async ({ url }) => {
   }
 
   return {
-    recipes: data,
+    recipes: data ? transformRecipeResults(data) : [],
     cuisines: cuisinesData ?? [],
     broaderAreaCounts,
     query: {
