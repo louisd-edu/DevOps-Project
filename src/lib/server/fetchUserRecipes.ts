@@ -19,7 +19,7 @@ export async function fetchUserRecipesBy(
   if (error || !data) return [];
 
   type JoinedRow = { recipe: Recipe | null };
-  const recipes = (data as JoinedRow[])
+  const recipes = (data as unknown as JoinedRow[])
     .map((row) => row.recipe)
     .filter((r): r is Recipe => Boolean(r));
 

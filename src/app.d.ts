@@ -13,13 +13,15 @@ declare global {
       user: User | null;
     }
     interface PageData {
-      session: Session | null;
-      user: User | null;
-      supabase: SupabaseClient;
-      profile: {
+      session?: Session | null;
+      user?: User | null;
+      supabase?: SupabaseClient;
+      profile?: {
         id: string;
         username: string | null;
         avatar_url: string | null;
+        displayname?: string | null;
+        level?: number | null;
       } | null;
     }
     // interface PageState {}

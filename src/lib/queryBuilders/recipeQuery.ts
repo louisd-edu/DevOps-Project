@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Recipe } from "$lib/types/Recipe";
 
 export interface RecipeQueryOptions {
   cuisines?: string[];
@@ -7,6 +8,16 @@ export interface RecipeQueryOptions {
   sortDir?: "asc" | "desc";
   page?: number;
   pageSize?: number;
+}
+
+/**
+ * Transforms raw query results to include profileAvatar field
+ */
+export function transformRecipeResults(data: any[]): Recipe[] {
+  return data.map((item) => ({
+    ...item,
+    profileAvatar: item.profiles?.avatar_url ?? null,
+  })) as Recipe[];
 }
 
 /**
@@ -36,7 +47,7 @@ export function buildRecipeQuery(
 			recipeimageurl,
 			cuisine,
 			cookingtime,
-			profiles(id, username, avatar_url)
+			profiles!inner(id, username, avatar_url, displayname, level)
 		`,
     { count: "exact" },
   );
