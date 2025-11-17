@@ -22,10 +22,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+
+      - name: Create .env file for CI
+        run: |
+          echo "PUBLIC_SUPABASE_URL=${{ vars.PUBLIC_SUPABASE_URL }}" > .env
+          echo "PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ vars.PUBLIC_SUPABASE_PUBLISHABLE_KEY }}" >> .env
 
       - name: Run type checking
         run: yarn run check
