@@ -1,18 +1,12 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
+    import RecipeInteractionProvider from "$lib/components/RecipeInteractionProvider.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick, setContext } from 'svelte';
-    import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
-    import {supabase} from "$lib/supabaseClient";
+    import { onMount, tick } from 'svelte';
+    import { supabase } from "$lib/supabaseClient";
+    import { buildRecipeQuery } from "$lib/queryBuilders/recipeQuery";
 
     let { data } = $props();
-
-    // Use the Supabase client from layout context if available (shares auth session)
-
-    // Initialize reusable favorites/saved manager and provide contexts for children
-    const favSaved = useFavoritesAndSaved(supabase);
-    setContext('favorites', favSaved.favoritesCtx);
-    setContext('saved', favSaved.savedCtx);
 
     // UI-only toggle to show all cuisines when "All areas" chip is active
     let showAllCuisines = $state(false);
@@ -111,51 +105,23 @@
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        let rq = supabase
-            .from('recipes')
-            .select(
-                `
-                id,
-                user_id,
-                recipename,
-                recipeimageurl,
-                cuisine,
-                cookingtime,
-                profiles(id,username,avatar_url)
-                `,
-                { count: 'exact' }
-            );
-
-        // Apply cuisine/area filter
+        // Determine cuisines to filter by
+        let cuisineFilter: string[] = [];
         if (currentCuisine) {
-            rq = rq.eq('cuisine', currentCuisine);
+            cuisineFilter = [currentCuisine];
         } else if (currentArea) {
-            const names = cuisinesForArea(currentArea);
-            if (names.length) rq = rq.in('cuisine', names);
-            else rq = rq.eq('cuisine', '__none__');
+            cuisineFilter = cuisinesForArea(currentArea);
         }
 
-        // Full-text search with prefix matching
-        const q = currentQ.trim().toLowerCase();
-        if (q) {
-            const tokens = q.match(/[a-z0-9]+/g) ?? [];
-            if (tokens.length) {
-                const tsQuery = tokens.map((t) => `${t}:*`).join(' & ');
-                rq = rq.filter('search_tsv', 'fts', tsQuery);
-            }
-        }
-
-        // Sorting
-        if (currentSortBy === 'name') {
-            rq = rq.order('recipename', { ascending: currentSortDir === 'asc' });
-        } else {
-            rq = rq.order('cookingtime', { ascending: currentSortDir === 'asc', nullsFirst: false });
-        }
-
-        // Pagination
-        const from = (currentPage - 1) * pageSize;
-        const to = from + pageSize - 1;
-        rq = rq.range(from, to);
+        // Build query using shared query builder
+        const rq = buildRecipeQuery(supabase, {
+            cuisines: cuisineFilter,
+            searchText: currentQ,
+            sortBy: currentSortBy,
+            sortDir: currentSortDir,
+            page: currentPage,
+            pageSize: pageSize,
+        });
 
         const { data: row, error, count } = await rq;
         if (id !== fetchId) return; // out-of-date response
@@ -169,18 +135,11 @@
 
         recipes = row ?? [];
         total = count ?? 0;
-        void favSaved.loadFavorites();
-        void favSaved.loadSaved();
     }
 
-    // Kick initial client-side fetch to ensure consistency and hydrate favorites/saved
+    // Kick initial client-side fetch
     onMount(() => {
-        favSaved.setUserId(data.user?.id ?? null);
-        const unsub = favSaved.syncAuth();
         void fetchRecipes();
-        void favSaved.loadFavorites();
-        void favSaved.loadSaved();
-        return () => { unsub?.(); favSaved.destroy(); };
     });
 
     // Refetch when any interactive state changes
@@ -269,6 +228,7 @@
     });
 </script>
 
+<RecipeInteractionProvider supabase={supabase} userId={data.user?.id ?? null}>
 <!-- Controls -->
 <div class=" mx-auto p-3 space-y-4">
     <div class="flex flex-col gap-2">
@@ -364,3 +324,4 @@
         </button>
     </div>
 </div>
+</RecipeInteractionProvider>
