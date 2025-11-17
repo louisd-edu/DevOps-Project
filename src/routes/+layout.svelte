@@ -10,7 +10,7 @@
   	const session = $derived(data.session)
   	const supabase = $derived(data.supabase)
     // Read profile in a type-safe way even if the generated type hasn't picked it up yet
-    const profile = $derived(((data as unknown) as { profile }).profile ?? null)
+    const profile = $derived(data.profile ?? null)
 
     // Expose supabase and session via context for children
     setContext('supabase', supabase)
