@@ -13,7 +13,9 @@ export interface RecipeQueryOptions {
 /**
  * Transforms raw query results to include profileAvatar field
  */
-export function transformRecipeResults(data: any[]): Recipe[] {
+export function transformRecipeResults(
+  data: Array<{ profiles?: { avatar_url?: string | null } } & Record<string, unknown>>
+): Recipe[] {
   return data.map((item) => ({
     ...item,
     profileAvatar: item.profiles?.avatar_url ?? null,
