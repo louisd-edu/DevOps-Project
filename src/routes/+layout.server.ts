@@ -1,4 +1,5 @@
 import type { LayoutServerLoad } from "./$types";
+import { getBasicProfile } from "$lib/server/profileQueries";
 
 export const load: LayoutServerLoad = async ({ locals, cookies }) => {
   const { session, user } = await locals.safeGetSession();
@@ -9,11 +10,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
     avatar_url: string | null;
   } | null = null;
   if (user) {
-    const { data, error } = await locals.supabase
-      .from("profiles")
-      .select("id, username, avatar_url, level")
-      .eq("id", user.id)
-      .single();
+    const { data, error } = await getBasicProfile(locals.supabase, user.id);
     if (!error) profile = data;
   }
 
