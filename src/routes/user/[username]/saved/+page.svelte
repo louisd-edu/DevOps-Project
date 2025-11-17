@@ -28,6 +28,6 @@
     });
 </script>
 
-    {#each data.savedrecipes as recipe}
+    {#each data.savedrecipes as recipe (recipe.id)}
         <RecipeComponent {recipe} />
     {/each}

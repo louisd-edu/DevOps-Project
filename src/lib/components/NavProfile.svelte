@@ -42,10 +42,8 @@
         levelPct = Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n % 100))) : 0;
     });
 
-    let level: number = $state(0);
-    $effect(() => {
-        level = Math.trunc( Number(profile?.level ?? 0) / 100);
-    });
+    let level: number = $derived(Math.trunc( Number(profile?.level ?? 0) / 100));
+
 </script>
 
 <nav class="w-full mt-3">

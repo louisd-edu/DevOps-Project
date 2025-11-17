@@ -4,7 +4,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 
   const { profile } = await parent();
 
-  const { data: myrecipes } = await supabase
+  const { data: myrecipes }= await supabase
     .from("recipes")
     .select("*, profiles(*)")
     .eq("user_id", profile.id);
