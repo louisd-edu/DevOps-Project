@@ -20,7 +20,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Run Prettier
-        run: yarn prettier
+        run: yarn run prettier
 
       - name: Auto-commit changes
         uses: autofix-ci/action@v1
