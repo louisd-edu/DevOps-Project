@@ -88,9 +88,8 @@
   }
 
   .buttons:hover {
-    background: var(--btn-colour);
     filter: contrast(107%) brightness(105%);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 15px hsl(0, 0%, 100%);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 25px hsl(0, 0%, 100%);
   }
 </style>
 
@@ -99,11 +98,11 @@
         <div class="upload-window">
             <h1>Upload New Recipe</h1>
             <form>
-                <input type="img-upload" class="buttons" value="Upload Image"><br>
+                <input type="button" id="img-upload" class="buttons" value="Upload Image"><br>
                 <input type="text" class="textField" placeholder="Recipe Name" required><br>
                 <input type="text" class="textField" placeholder="Time to Make (e.g. 40 minutes)" required><br>
                 <input type="text" class="textField" placeholder="Instructions" required><br>
-                <input type="submit" class="buttons" value="Submit">
+                <input type="submit" id="submit-recipe" class="buttons" value="Submit">
             </form>
         </div>
     </div>
