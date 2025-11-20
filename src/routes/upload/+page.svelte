@@ -3,10 +3,12 @@
         --upload-window-bg: linear-gradient(rgba(180, 180, 180, 0.25) 0%, rgba(235, 235, 235, 0.4) 100%);
         --text-colour: rgb(64, 53, 77);
         --btn-colour: linear-gradient(180deg, rgb(235, 235, 235) 0%, rgb(185, 185, 185) 100%);
+        --btn-colour-hover: linear-gradient(180deg, hsl(0, 0%, 87%) 0%, hsl(0, 0%, 68%) 100%);
         --text-field-bg: rgba(255, 255, 255, 0.85);
         --text-field-colour: rgb(0, 0, 0);
         --text-field-border: 1px solid #ccc;
         --text-colour-near-black: rgb(17, 17, 17);
+        --item-width: 500px;
     }
 
     body {
@@ -31,7 +33,7 @@
   }
 
   .upload-window {
-    width: 600px;
+    width: auto;
     background: var(--upload-window-bg);
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
@@ -56,10 +58,10 @@
     gap: 40px;
     flex: 1;
   }
-
+  
   .textField {
     box-sizing: border-box;
-    width: 100%;
+    width: var(--item-width);
     padding: 10px;
     border-radius: 6px;
     border: var(--text-field-border);
@@ -71,7 +73,7 @@
 
   .buttons {
     box-sizing: border-box;
-    width: 100%;
+    width: var(--item-width);
     background: #ccc;
     background: var(--btn-colour);
     border: none;
@@ -82,7 +84,13 @@
     border-radius: 6px;
     margin-top: 5px;
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 10px rgb(245, 245, 245);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 10px hsl(0, 0%, 96%);
+  }
+
+  .buttons:hover {
+    background: var(--btn-colour);
+    filter: contrast(107%) brightness(105%);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 15px hsl(0, 0%, 100%);
   }
 </style>
 
@@ -91,10 +99,11 @@
         <div class="upload-window">
             <h1>Upload New Recipe</h1>
             <form>
+                <input type="img-upload" class="buttons" value="Upload Image"><br>
                 <input type="text" class="textField" placeholder="Recipe Name" required><br>
                 <input type="text" class="textField" placeholder="Time to Make (e.g. 40 minutes)" required><br>
                 <input type="text" class="textField" placeholder="Instructions" required><br>
-                <input type="submit" class="buttons" value="Upload">
+                <input type="submit" class="buttons" value="Submit">
             </form>
         </div>
     </div>
