@@ -85,6 +85,7 @@
     margin-top: 5px;
     cursor: pointer;
     box-shadow: 0 3px 6px rgba(0,0,0,0.25), inset 0px 0px 10px hsl(0, 0%, 96%);
+    transition: filter 0.15s ease, box-shadow 0.15s ease;
   }
 
   .buttons:hover {
