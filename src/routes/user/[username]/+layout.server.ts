@@ -3,7 +3,8 @@ import { prepareImageUrls } from "$lib/components/prepareImageUrls";
 import { getProfileByUsername } from "$lib/server/profileQueries";
 
 export const load: LayoutServerLoad = async ({ locals, params }) => {
-  const { supabase } = locals;
+  const { supabase, safeGetSession } = locals;
+  const { session } = await safeGetSession();
   const { username } = params;
 
   const { data: profile, error } = await getProfileByUsername(
@@ -22,9 +23,13 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
 
   const avatar = await prepareImageUrls(profile.avatar_url, "avatars");
 
+  // Check if viewer is the profile owner
+  const isOwner = session?.user?.id === profile.id;
+
   return {
     profile,
     avatar,
     myrecipes: myrecipes ?? [],
+    isOwner,
   };
 };

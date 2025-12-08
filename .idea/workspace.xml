@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="Adds recipe creation page with image upload&#10;&#10;Implements the recipe creation page, allowing users to input recipe details,&#10;including name, cooking time, cuisine, method steps, and ingredients.&#10;Integrates image upload functionality with cropping.&#10;Adds ingredient modal for adding new and existing ingredients.&#10;&#10;(cherry picked from commit b8de65470a5a0d59292d8adcfc18073badf3b5a6)&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/lib/components/IngredientModal.svelte&#10;#&#9;src/lib/components/RecipeImageUpload.svelte&#10;#&#9;src/lib/types/Ingredient.ts&#10;#&#9;src/lib/types/RecipeIngredient.ts&#10;#&#9;src/routes/createrecipe/+page.server.ts&#10;#&#9;src/routes/createrecipe/+page.svelte">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/auth/+layout.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/+layout.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/auth/+page.server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/+page.server.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/auth/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/+page.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/auth/confirm/+server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/confirm/+server.ts" afterDir="false" />
-    </list>
+    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="Enhances UI responsiveness and accessibility across profile and recipe components" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,6 +37,23 @@
     </attachedChunks>
   </component>
   <component name="TaskManager">
+    <task id="LOCAL-00001" summary="Adds navigation header and refactors authentication forms">
+      <option name="closed" value="true" />
+      <created>1765224971539</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1765224971539</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Enhances UI responsiveness and accessibility across profile and recipe components">
+      <option name="closed" value="true" />
+      <created>1765226254472</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1765226254472</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -58,5 +69,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Adds navigation header and refactors authentication forms" />
+    <MESSAGE value="Enhances UI responsiveness and accessibility across profile and recipe components" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhances UI responsiveness and accessibility across profile and recipe components" />
   </component>
 </project>
