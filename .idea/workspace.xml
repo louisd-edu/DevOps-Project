@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="Enhances UI responsiveness and accessibility across profile and recipe components" />
+    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="Enhances UI responsiveness and accessibility across profile and recipe components">
+      <change beforePath="$PROJECT_DIR$/src/routes/user/[username]/+layout.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/user/[username]/+layout.svelte" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

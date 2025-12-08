@@ -93,7 +93,7 @@
 </div>
 {/if}
 
-<div class="mt-5 mb-4 lg:px-10">
+<div class="mt-5 mb-4">
     <button
       class={`px-5 py-3 rounded-full transition-all font-medium ${isMy ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg ring-2 ring-primary-600 dark:ring-primary-400' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 hover:bg-accent-200 dark:hover:bg-accent-800'}`}
       onclick={() => go(`/user/${profile?.username}`)}
