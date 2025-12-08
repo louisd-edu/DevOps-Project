@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
     import AvatarUpload from "$lib/components/AvatarUpload.svelte";
+    import type {Profile} from "$lib/types/Profile";
 
 	// ...
 
@@ -14,13 +15,18 @@
 	let username: string = $state('')
 	let website: string = $state('')
 	let avatarUrl: string | undefined = $state<string | undefined>(undefined)
+	let showFavoritesPublic: boolean = $state(true)
+	let showSavedPublic: boolean = $state(true)
 
 	// keep the above state in sync when `profile` or `form` changes
 	$effect(() => {
+		const p = profile as Profile | null;
 		fullName = form?.fullName ?? profile?.full_name ?? ''
 		username = form?.username ?? profile?.username ?? ''
 		website = form?.website ?? profile?.website ?? ''
 		avatarUrl = profile?.avatar_url ?? undefined
+		showFavoritesPublic = form?.showFavoritesPublic ?? p?.show_favorites_public ?? true
+		showSavedPublic = form?.showSavedPublic ?? p?.show_saved_public ?? true
 	})
 
 	// normalize username as lowercase with no spaces (silent enforcement, no error UI)
@@ -103,6 +109,32 @@
 			<input id="website" name="website" type="url" value={form?.website ?? website} />
 		</div>
 
+		<div class="privacy-settings">
+			<h3>Privacy Settings</h3>
+			<div class="privacy-option">
+				<label for="showFavoritesPublic">
+					<input
+						id="showFavoritesPublic"
+						name="showFavoritesPublic"
+						type="checkbox"
+						bind:checked={showFavoritesPublic}
+					/>
+					Make my liked recipes public
+				</label>
+			</div>
+			<div class="privacy-option">
+				<label for="showSavedPublic">
+					<input
+						id="showSavedPublic"
+						name="showSavedPublic"
+						type="checkbox"
+						bind:checked={showSavedPublic}
+					/>
+					Make my saved recipes public
+				</label>
+			</div>
+		</div>
+
 		<div>
 			<input
 				type="submit"
@@ -122,4 +154,32 @@
 
 <style>
 	/* Removed inline error UI since we enforce silently */
+	.privacy-settings {
+		margin-top: 1.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid #e5e7eb;
+	}
+
+	.privacy-settings h3 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		margin-bottom: 1rem;
+	}
+
+	.privacy-option {
+		margin-bottom: 0.75rem;
+	}
+
+	.privacy-option label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		cursor: pointer;
+	}
+
+	.privacy-option input[type="checkbox"] {
+		width: 1.25rem;
+		height: 1.25rem;
+		cursor: pointer;
+	}
 </style>

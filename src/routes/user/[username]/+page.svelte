@@ -1,14 +1,20 @@
 <script lang="ts">
 import RecipeComponent from "$lib/components/RecipeComponent.svelte";
 import RecipeInteractionProvider from "$lib/components/RecipeInteractionProvider.svelte";
-import { supabase } from "$lib/supabaseClient";
+import { getContext } from 'svelte';
+import { supabase as supabaseFallback } from '$lib/supabaseClient';
 import type { Recipe } from "$lib/types/Recipe";
+import type { SupabaseClient, Session } from '@supabase/supabase-js';
 
-let { data } = $props<{ data: { myrecipes: Recipe[] } }>();
+let { data } = $props<{ data: { myrecipes: Recipe[]; isOwner: boolean } }>();
+
+const ctxClient = getContext<SupabaseClient>('supabase');
+const ctxSession = getContext<Session | null>('session');
+const sb = ctxClient ?? supabaseFallback;
 </script>
 
-<RecipeInteractionProvider supabase={supabase} userId={data.user?.id ?? null}>
+<RecipeInteractionProvider supabase={sb} userId={ctxSession?.user?.id ?? null}>
 	{#each data.myrecipes as recipe (recipe.id)}
-		<RecipeComponent {recipe} />
+		<RecipeComponent {recipe} showPrivacyBadge={data.isOwner} />
 	{/each}
 </RecipeInteractionProvider>

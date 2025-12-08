@@ -54,7 +54,8 @@ export const load: PageServerLoad = async ({ url }) => {
       const { count } = await supabase
         .from("recipes")
         .select("id", { count: "exact", head: true })
-        .in("cuisine", cuisineNames);
+        .in("cuisine", cuisineNames)
+        .eq("is_public", true);
       return [a, count ?? 0] as const;
     }),
   );
@@ -78,6 +79,7 @@ export const load: PageServerLoad = async ({ url }) => {
     sortDir: sortDirParam,
     page: pageParam,
     pageSize: pageSizeParam,
+    includePrivate: false, // Hide private recipes on home page
   });
 
   const { data, error, count } = await rq;
