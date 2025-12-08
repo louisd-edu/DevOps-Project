@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+    <list default="true" id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/+page.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/user/[username]/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/user/[username]/+page.svelte" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +31,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "fixedlikes",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/leonard/Desktop/Solent/DevOps/DevOps-Project",
     "node.js.detected.package.eslint": "true",
@@ -62,6 +64,15 @@
       <workItem from="1763377885644" duration="346000" />
       <workItem from="1763382247802" duration="941000" />
     </task>
+    <task id="LOCAL-00001" summary="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)">
+      <option name="closed" value="true" />
+      <created>1765192629610</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1765192629610</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -77,5 +88,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)" />
   </component>
 </project>

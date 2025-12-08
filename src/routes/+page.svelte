@@ -5,12 +5,25 @@
     import { supabase as supabaseFallback } from '$lib/supabaseClient';
     import {prepareImageUrls} from "$lib/components/prepareImageUrls";
     import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
+    import type { SupabaseClient, Session } from '@supabase/supabase-js';
+    import type { Recipe } from '$lib/types/Recipe';
+
+    // Type for raw recipe data from database query
+    type RawRecipeRow = {
+        id: string | number;
+        user_id: string;
+        recipename: string;
+        recipeimageurl: string | null;
+        cuisine: string | null;
+        cookingtime: number | null;
+        profiles: { id: string; username: string | null; avatar_url: string | null } | { id: string; username: string | null; avatar_url: string | null }[] | null;
+    };
 
     let { data } = $props();
 
     // Use the Supabase client from layout context if available (shares auth session)
-    const ctxClient = getContext<any>('supabase');
-    const ctxSession = getContext<any>('session');
+    const ctxClient = getContext<SupabaseClient | undefined>('supabase');
+    const ctxSession = getContext<Session | null | undefined>('session');
     const sb = ctxClient ?? supabaseFallback;
 
     // Initialize reusable favorites/saved manager and provide contexts for children
@@ -47,7 +60,7 @@
     let pageSize = $state<number>(12);
 
     // Results state
-    let recipes = $state<any[]>(data.recipes ?? []);
+    let recipes = $state<Recipe[]>(data.recipes ?? []);
     let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -173,7 +186,7 @@
 
         // Prepare image URLs
         const mapped = await Promise.all(
-            (rows ?? []).map(async (r: any) => {
+            (rows ?? []).map(async (r: RawRecipeRow) => {
                 const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
                 const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
