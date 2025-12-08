@@ -26,12 +26,12 @@ export const load: PageServerLoad = async ({
     console.error("Error loading cuisines:", cuisineError);
   }
 
-	// Load all ingredients for autocomplete
-	const { data: ingredients, error: ingredientError} = await supabase
-		.from("ingredients")
-		.select("name, calories, protein, unit")
-		.order("name")
-		.returns<Ingredient[]>();
+  // Load all ingredients for autocomplete
+  const { data: ingredients, error: ingredientError } = await supabase
+    .from("ingredients")
+    .select("name, calories, protein, unit")
+    .order("name")
+    .returns<Ingredient[]>();
 
   if (ingredientError) {
     console.error("Error loading ingredients:", ingredientError);
@@ -55,18 +55,18 @@ export const actions: Actions = {
 
     const formData = await request.formData();
 
-		// Extract and parse form data
-		const recipeName = (formData.get("recipeName") as string)?.trim();
-		const cookingTime = parseInt(formData.get("cookingTime") as string);
-		const cuisine = formData.get("cuisine") as string;
-		const recipeImageUrl = formData.get("recipeImageUrl") as string;
-		const methodSteps = JSON.parse(
-			formData.get("methodSteps") as string
-		) as string[];
-		const ingredients = JSON.parse(
-			formData.get("ingredients") as string
-		) as RecipeIngredient[];
-		const isPublic = formData.get("isPublic") === "true";
+    // Extract and parse form data
+    const recipeName = (formData.get("recipeName") as string)?.trim();
+    const cookingTime = parseInt(formData.get("cookingTime") as string);
+    const cuisine = formData.get("cuisine") as string;
+    const recipeImageUrl = formData.get("recipeImageUrl") as string;
+    const methodSteps = JSON.parse(
+      formData.get("methodSteps") as string,
+    ) as string[];
+    const ingredients = JSON.parse(
+      formData.get("ingredients") as string,
+    ) as RecipeIngredient[];
+    const isPublic = formData.get("isPublic") === "true";
 
     // Validation
     const errors: Record<string, string> = {};
@@ -131,22 +131,22 @@ export const actions: Actions = {
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
 
-		// Generate share token for private recipes
-		const shareToken = isPublic ? null : generateShareToken();
+    // Generate share token for private recipes
+    const shareToken = isPublic ? null : generateShareToken();
 
-		try {
-			// STEP 1: Insert new ingredients (if any)
-			const newIngredients = ingredients.filter((ing) => ing.isNew);
+    try {
+      // STEP 1: Insert new ingredients (if any)
+      const newIngredients = ingredients.filter((ing) => ing.isNew);
 
-			if (newIngredients.length > 0) {
-				const { error: ingError } = await supabase.from("ingredients").insert(
-					newIngredients.map((ing) => ({
-						name: ing.name,
-						calories: ing.calories / ing.quantity, // Store per-unit values
-						protein: ing.protein / ing.quantity,
-						unit: ing.unit, // Store the unit for this ingredient
-					}))
-				);
+      if (newIngredients.length > 0) {
+        const { error: ingError } = await supabase.from("ingredients").insert(
+          newIngredients.map((ing) => ({
+            name: ing.name,
+            calories: ing.calories / ing.quantity, // Store per-unit values
+            protein: ing.protein / ing.quantity,
+            unit: ing.unit, // Store the unit for this ingredient
+          })),
+        );
 
         if (ingError) {
           console.error("Error inserting ingredients:", ingError);
@@ -174,23 +174,23 @@ export const actions: Actions = {
         }
       }
 
-			// STEP 2: Insert recipe
-			const { data: recipe, error: recipeError } = await supabase
-				.from("recipes")
-				.insert({
-					user_id: session.user.id,
-					recipename: recipeName,
-					recipeimageurl: recipeImageUrl || null,
-					cuisine,
-					cookingtime: cookingTime,
-					method: cleanedSteps,
-					total_calories: Math.round(totalCalories),
-					total_protein: parseFloat(totalProtein.toFixed(1)),
-					is_public: isPublic,
-					share_token: shareToken,
-				})
-				.select("id")
-				.single();
+      // STEP 2: Insert recipe
+      const { data: recipe, error: recipeError } = await supabase
+        .from("recipes")
+        .insert({
+          user_id: session.user.id,
+          recipename: recipeName,
+          recipeimageurl: recipeImageUrl || null,
+          cuisine,
+          cookingtime: cookingTime,
+          method: cleanedSteps,
+          total_calories: Math.round(totalCalories),
+          total_protein: parseFloat(totalProtein.toFixed(1)),
+          is_public: isPublic,
+          share_token: shareToken,
+        })
+        .select("id")
+        .single();
 
       if (recipeError) {
         console.error("Error creating recipe:", recipeError);
@@ -222,11 +222,11 @@ export const actions: Actions = {
         });
       }
 
-			// SUCCESS: Redirect to the new recipe
-			throw redirect(303, `/recipe/${recipe.id}`);
-		} catch (error) {
-			// Re-throw redirects
-			if (isRedirect(error)) throw error;
+      // SUCCESS: Redirect to the new recipe
+      throw redirect(303, `/recipe/${recipe.id}`);
+    } catch (error) {
+      // Re-throw redirects
+      if (isRedirect(error)) throw error;
 
       console.error("Unexpected error:", error);
       return fail(500, {
