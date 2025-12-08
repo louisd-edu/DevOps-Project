@@ -55,7 +55,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each recipe.recipe_ingredients as recipeIngredient, i}
+            {#each recipe.recipe_ingredients as recipeIngredient (recipeIngredient.id || recipeIngredient.ingredientid)}
               <tr class="border-b border-slate-200 hover:bg-slate-50">
                 <td class="px-4 py-3">
                   {recipeIngredient.quantity || 'N/A'}
@@ -81,7 +81,7 @@
       <h2 class="font-bold text-2xl mb-4">Method</h2>
       {#if recipe.method && recipe.method.length > 0}
         <div class="space-y-4">
-          {#each recipe.method as step, index}
+          {#each recipe.method as step, index (index)}
             <div class="flex gap-4">
               <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-semibold">
                 {index + 1}

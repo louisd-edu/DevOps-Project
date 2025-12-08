@@ -33,13 +33,15 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   // Normalize recipe image URL
-  const recipeImagePath = (data as any).recipeimageurl ?? (data as any).recipeImage ?? null;
+  const recipeData = data as Record<string, unknown>;
+  const recipeImagePath = (recipeData.recipeimageurl ?? recipeData.recipeImage ?? null) as string | null;
   const publicRecipeUrl = toPublicUrl(recipeImagePath, "recipeimages");
-  (data as any).recipeImageUrl = publicRecipeUrl;
+  recipeData.recipeImageUrl = publicRecipeUrl;
 
   // Normalize avatar URL on nested profile
-  if ((data as any).profiles?.avatar_url) {
-    (data as any).profiles.avatar_url = toPublicUrl((data as any).profiles.avatar_url, "avatars");
+  const profiles = recipeData.profiles as Record<string, unknown> | undefined;
+  if (profiles?.avatar_url) {
+    profiles.avatar_url = toPublicUrl(profiles.avatar_url as string, "avatars");
   }
   
   return { recipe: data };
