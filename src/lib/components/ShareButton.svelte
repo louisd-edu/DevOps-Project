@@ -38,18 +38,22 @@
 <button
 	type="button"
 	onclick={copyToClipboard}
-	class="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+	class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
+	class:border={!copied}
 	class:border-green-500={copied}
-	class:bg-green-50={copied}
+	class:bg-green-500={copied}
+	class:text-white={copied}
 	class:border-slate-300={!copied}
-	class:bg-white={!copied}
-	class:hover:bg-slate-50={!copied}
+	class:bg-slate-100={!copied}
+	class:hover:bg-slate-200={!copied}
+	class:text-slate-700={!copied}
+	title={copied ? 'Link copied to clipboard!' : 'Share this recipe'}
 >
 	{#if copied}
-		<Icon icon="mdi:check" height="20" style="color: #10b981" />
-		<span class="text-green-600 font-medium">Link Copied!</span>
+		<Icon icon="mdi:check" height="20" />
+		<span class="hidden sm:inline whitespace-nowrap">Copied!</span>
 	{:else}
 		<Icon icon="mdi:share-variant" height="20" />
-		<span>Share Recipe</span>
+		<span class="hidden sm:inline whitespace-nowrap">Share</span>
 	{/if}
 </button>
