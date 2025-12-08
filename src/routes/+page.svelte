@@ -195,7 +195,7 @@
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
                 return {
                     ...r,
-                    profiles: profile ?? { id: '', username: null, displayname: null, avatar_url: null, level: null },
+                    profiles: profile ?? { id: '', username: null, displayname: null, avatar_url: null, level: null, show_favorites_public: null, show_saved_public: null },
                     profileAvatar,
                     recipeImage,
                     is_public: true, // Only public recipes are fetched
