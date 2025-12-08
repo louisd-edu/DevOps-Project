@@ -2,6 +2,7 @@
   import { Chip } from "$lib";
   import Avatar from "$lib/components/Avatar.svelte";
   import ShareButton from "$lib/components/ShareButton.svelte";
+  import Icon from '@iconify/svelte';
   import { getContext } from 'svelte';
   import { goto } from '$app/navigation';
   import type { Session } from '@supabase/supabase-js';
@@ -36,11 +37,11 @@
 
         <!-- Recipe Info -->
         <div class="lg:w-2/3 space-y-4">
-          <div class="flex justify-between items-start">
-            <h1 class="font-bold text-3xl lg:text-4xl">{recipe.recipename}</h1>
+          <div class="flex justify-between items-start gap-3">
+            <h1 class="font-bold text-2xl sm:text-3xl lg:text-4xl flex-1 min-w-0">{recipe.recipename}</h1>
 
-            <div class="flex gap-2">
-              <!-- Share button (always visible) -->
+            <div class="flex gap-2 flex-shrink-0">
+              <!-- Share button (always visible on mobile as icon-only) -->
               <ShareButton
                 recipeId={recipe.id}
                 isPublic={recipe.is_public}
@@ -51,11 +52,13 @@
                 <button
                   type="button"
                   onclick={() => goto(`/recipe/${recipe.id}/edit`)}
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-blue-700 active:scale-95"
+                  title="Edit this recipe"
                 >
-                  Edit
+                  <Icon icon="mdi:pencil" height="20" />
+                  <span class="hidden sm:inline whitespace-nowrap">Edit</span>
                 </button>
-                <form method="POST" action="?/delete" use:enhance={() => {
+                <form method="POST" action="?/delete" class="contents" use:enhance={() => {
                   if (!confirm('Are you sure you want to delete this recipe?')) {
                     return async ({ cancel }) => cancel();
                   }
@@ -70,9 +73,11 @@
                   <button
                     type="submit"
                     disabled={deleting}
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                    class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-red-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-red-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                    title={deleting ? 'Deleting recipe...' : 'Delete this recipe'}
                   >
-                    {deleting ? 'Deleting...' : 'Delete'}
+                    <Icon icon={deleting ? 'mdi:loading' : 'mdi:delete'} height="20" class={deleting ? 'animate-spin' : ''} />
+                    <span class="hidden sm:inline whitespace-nowrap">{deleting ? 'Deleting...' : 'Delete'}</span>
                   </button>
                 </form>
               {/if}
