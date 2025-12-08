@@ -119,7 +119,7 @@
 				type="file"
 				id="single"
 				accept="image/*"
-				on:change={handleFileSelect}
+				onchange={handleFileSelect}
 				disabled={uploading}
 			/>
 		</div>

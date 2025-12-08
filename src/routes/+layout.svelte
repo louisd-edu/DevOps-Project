@@ -13,6 +13,7 @@
     const profile = $derived(data.profile ?? null)
 
     // Expose supabase and session via context for children
+    // Note: These warnings are expected - we intentionally capture the initial values
     setContext('supabase', supabase)
     setContext('session', session)
 

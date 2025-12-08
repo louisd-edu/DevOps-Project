@@ -160,17 +160,18 @@
 		class="modal-overlay"
 		role="dialog"
 		aria-modal="true"
-		on:click={closeModal}
-		on:keydown={(e) => e.key === "Escape" && closeModal()}
+		tabindex="-1"
+		onclick={closeModal}
+		onkeydown={(e) => e.key === "Escape" && closeModal()}
 	>
 		<!-- Modal Content -->
-		<div class="modal-content" on:click|stopPropagation>
+		<div class="modal-content" role="presentation" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
 			<div class="modal-header">
 				<h2 class="text-2xl font-bold">Add Ingredient</h2>
 				<button
 					type="button"
 					class="close-button"
-					on:click={closeModal}
+					onclick={closeModal}
 					aria-label="Close modal"
 				>
 					×
@@ -183,7 +184,7 @@
 					<button
 						type="button"
 						class="mode-button {!isAddingNew ? 'active' : ''}"
-						on:click={() => {
+						onclick={() => {
 							isAddingNew = false;
 							selectedIngredient = null;
 						}}
@@ -193,7 +194,7 @@
 					<button
 						type="button"
 						class="mode-button {isAddingNew ? 'active' : ''}"
-						on:click={toggleAddNew}
+						onclick={toggleAddNew}
 					>
 						Add New Ingredient
 					</button>
@@ -223,7 +224,7 @@
 										<button
 											type="button"
 											class="result-item"
-											on:click={() => selectIngredient(ingredient)}
+											onclick={() => selectIngredient(ingredient)}
 										>
 											<div class="font-medium">{ingredient.name}</div>
 											<div class="text-sm text-slate-500">
@@ -355,13 +356,13 @@
 
 			<!-- Modal Footer -->
 			<div class="modal-footer">
-				<button type="button" class="cancel-button" on:click={closeModal}>
+				<button type="button" class="cancel-button" onclick={closeModal}>
 					Cancel
 				</button>
 				<button
 					type="button"
 					class="add-button"
-					on:click={handleAdd}
+					onclick={handleAdd}
 					disabled={!selectedIngredient && !isAddingNew}
 				>
 					Add Ingredient

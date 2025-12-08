@@ -123,7 +123,7 @@
 				type="file"
 				id="recipe-image-input"
 				accept="image/*"
-				on:change={handleFileSelect}
+				onchange={handleFileSelect}
 				disabled={uploading}
 			/>
 		</div>

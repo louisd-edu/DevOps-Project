@@ -6,6 +6,7 @@
 	import { supabase as supabaseFallback } from "$lib/supabaseClient";
 	import type { SupabaseClient } from "@supabase/supabase-js";
 	import type { RecipeIngredient } from "$lib/types/RecipeIngredient";
+	import type { Cuisine } from "$lib/types/Cuisine";
 	import RecipeImageUpload from "$lib/components/RecipeImageUpload.svelte";
 	import IngredientModal from "$lib/components/IngredientModal.svelte";
 
@@ -52,7 +53,7 @@
 
 			// Convert recipe_ingredients to RecipeIngredient format
 			if (data.recipe.recipe_ingredients) {
-				ingredients = data.recipe.recipe_ingredients.map((ri: any) => ({
+				ingredients = data.recipe.recipe_ingredients.map((ri: { ingredientid: string; quantity: number; type: string; ingredients?: { calories: number; protein: number } }) => ({
 					name: ri.ingredientid,
 					quantity: ri.quantity,
 					unit: ri.type,
@@ -64,7 +65,7 @@
 
 			// Find the broader area for the selected cuisine
 			if (selectedCuisine) {
-				const cuisine = data.cuisines?.find((c: any) => c.name === selectedCuisine);
+				const cuisine = data.cuisines?.find((c: Cuisine) => c.name === selectedCuisine);
 				if (cuisine && cuisine.broader_areas && cuisine.broader_areas.length > 0) {
 					selectedArea = cuisine.broader_areas[0];
 				}
@@ -72,18 +73,6 @@
 
 			// Initialize privacy setting
 			isPublic = data.recipe.is_public ?? true;
-		}
-	});
-
-	// Restore form data on error
-	$effect(() => {
-		if (form?.data) {
-			recipeName = form.data.recipeName ?? "";
-			cookingTime = form.data.cookingTime ?? null;
-			selectedCuisine = form.data.cuisine ?? null;
-			recipeImageUrl = form.data.recipeImageUrl ?? undefined;
-			methodSteps = form.data.methodSteps ?? [""];
-			ingredients = form.data.ingredients ?? [];
 		}
 	});
 
@@ -119,7 +108,7 @@
 	}
 
 	// Validation helpers
-	const errors = $derived(form?.errors ?? {});
+	const errors = $derived({} as Record<string, string>);
 	const isFormValid = $derived(
 		recipeName.trim().length >= 3 &&
 			cookingTime !== null &&
@@ -140,7 +129,7 @@
 	const cuisinesForSelectedArea = $derived(
 		selectedArea
 			? (data.cuisines ?? [])
-					.filter((c) => (c.broader_areas ?? []).includes(selectedArea))
+					.filter((c) => (c.broader_areas ?? []).includes(selectedArea as string))
 					.sort((a, b) => a.name.localeCompare(b.name))
 			: []
 	);
@@ -254,7 +243,6 @@
 			</div>
 
 			<div>
-				<label class="mb-1 block font-medium">Privacy Setting</label>
 				<div class="flex items-center gap-3 p-3 border border-slate-300 rounded bg-slate-50">
 					<input
 						id="isPublic"
@@ -262,7 +250,7 @@
 						bind:checked={isPublic}
 						class="h-5 w-5"
 					/>
-					<label for="isPublic" class="cursor-pointer">
+					<label for="isPublic" class="cursor-pointer mb-0">
 						<span class="font-medium">Make this recipe public</span>
 						<span class="block text-slate-600 text-sm">
 							{#if isPublic}
@@ -489,7 +477,7 @@
 {#if showIngredientModal}
 	<IngredientModal
 		bind:open={showIngredientModal}
-		existingIngredients={data.ingredients}
+		existingIngredients={data.existingIngredients}
 		onAdd={handleIngredientAdd}
 	/>
 {/if}

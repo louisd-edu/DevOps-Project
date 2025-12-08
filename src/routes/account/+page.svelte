@@ -19,12 +19,13 @@
 
 	// keep the above state in sync when `profile` or `form` changes
 	$effect(() => {
+		const p = profile as any;
 		fullName = form?.fullName ?? profile?.full_name ?? ''
 		username = form?.username ?? profile?.username ?? ''
 		website = form?.website ?? profile?.website ?? ''
 		avatarUrl = profile?.avatar_url ?? undefined
-		showFavoritesPublic = form?.showFavoritesPublic ?? profile?.show_favorites_public ?? true
-		showSavedPublic = form?.showSavedPublic ?? profile?.show_saved_public ?? true
+		showFavoritesPublic = form?.showFavoritesPublic ?? p?.show_favorites_public ?? true
+		showSavedPublic = form?.showSavedPublic ?? p?.show_saved_public ?? true
 	})
 
 	// normalize username as lowercase with no spaces (silent enforcement, no error UI)

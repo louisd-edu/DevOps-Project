@@ -16,7 +16,7 @@
         recipeimageurl: string | null;
         cuisine: string | null;
         cookingtime: number | null;
-        profiles: { id: string; username: string | null; avatar_url: string | null } | { id: string; username: string | null; avatar_url: string | null }[] | null;
+        profiles: { id: string; username: string | null; displayname: string | null; avatar_url: string | null; level: number | null } | { id: string; username: string | null; displayname: string | null; avatar_url: string | null; level: number | null }[] | null;
     };
 
     let { data } = $props();
@@ -138,7 +138,9 @@
                 recipeimageurl,
                 cuisine,
                 cookingtime,
-                profiles(id,username,avatar_url)
+                is_public,
+                share_token,
+                profiles(id,username,displayname,avatar_url,level)
                 `,
                 { count: 'exact' }
             )
@@ -191,10 +193,17 @@
                 const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
                 const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
-                return { ...r, profiles: profile, profileAvatar, recipeImage };
+                return {
+                    ...r,
+                    profiles: profile ?? { id: '', username: null, displayname: null, avatar_url: null, level: null },
+                    profileAvatar,
+                    recipeImage,
+                    is_public: true, // Only public recipes are fetched
+                    share_token: null
+                };
             })
         );
-        recipes = mapped;
+        recipes = mapped as Recipe[];
         total = count ?? 0;
         void favSaved.loadFavorites();
         void favSaved.loadSaved();
