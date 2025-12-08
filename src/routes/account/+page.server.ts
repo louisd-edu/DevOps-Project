@@ -23,6 +23,8 @@ export const actions: Actions = {
     const username = formData.get("username") as string;
     const website = formData.get("website") as string;
     const avatarUrl = formData.get("avatarUrl") as string;
+    const showFavoritesPublic = formData.get("showFavoritesPublic") === "on";
+    const showSavedPublic = formData.get("showSavedPublic") === "on";
 
     const { session } = await safeGetSession();
 
@@ -32,6 +34,8 @@ export const actions: Actions = {
       username,
       website,
       avatar_url: avatarUrl,
+      show_favorites_public: showFavoritesPublic,
+      show_saved_public: showSavedPublic,
       updated_at: new Date(),
     });
 
@@ -41,6 +45,8 @@ export const actions: Actions = {
         username,
         website,
         avatarUrl,
+        showFavoritesPublic,
+        showSavedPublic,
       });
     }
 
@@ -49,6 +55,8 @@ export const actions: Actions = {
       username,
       website,
       avatarUrl,
+      showFavoritesPublic,
+      showSavedPublic,
     };
   },
   signout: async ({ locals: { supabase, safeGetSession } }) => {
