@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 	// Load all ingredients for autocomplete
 	const { data: ingredients, error: ingredientError} = await supabase
 		.from("ingredients")
-		.select("name, calories, protein")
+		.select("name, calories, protein, unit")
 		.order("name")
 		.returns<Ingredient[]>();
 
@@ -136,6 +136,7 @@ export const actions: Actions = {
 						name: ing.name,
 						calories: ing.calories / ing.quantity, // Store per-unit values
 						protein: ing.protein / ing.quantity,
+						unit: ing.unit, // Store the unit for this ingredient
 					}))
 				);
 

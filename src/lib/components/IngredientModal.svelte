@@ -67,6 +67,7 @@
 	function selectIngredient(ingredient: Ingredient) {
 		selectedIngredient = ingredient;
 		searchQuery = ingredient.name;
+		unit = ingredient.unit; // Auto-set unit from ingredient
 		isAddingNew = false;
 	}
 
@@ -220,7 +221,7 @@
 										>
 											<div class="font-medium">{ingredient.name}</div>
 											<div class="text-sm text-slate-500">
-												Per 100g: {ingredient.calories} cal, {ingredient.protein}g
+												Per {ingredient.unit}: {ingredient.calories} cal, {ingredient.protein}g
 												protein
 											</div>
 										</button>
@@ -241,7 +242,7 @@
 						>
 							<div class="font-semibold">{selectedIngredient.name}</div>
 							<div class="text-sm text-slate-600">
-								Per 100g: {selectedIngredient.calories} cal, {selectedIngredient.protein}g
+								Per {selectedIngredient.unit}: {selectedIngredient.calories} cal, {selectedIngredient.protein}g
 								protein
 							</div>
 						</div>
@@ -262,10 +263,28 @@
 							/>
 						</div>
 
+						<div>
+							<label for="new-unit" class="mb-1 block font-medium"
+								>Unit <span class="text-red-500">*</span></label
+							>
+							<select
+								id="new-unit"
+								bind:value={unit}
+								class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+							>
+								{#each UNITS as unitOption (unitOption)}
+									<option value={unitOption}>{unitOption}</option>
+								{/each}
+							</select>
+							<p class="mt-1 text-xs text-slate-500">
+								Choose the standard unit for measuring this ingredient
+							</p>
+						</div>
+
 						<div class="grid grid-cols-2 gap-4">
 							<div>
 								<label for="new-calories" class="mb-1 block font-medium"
-									>Calories (per 100g) <span class="text-red-500">*</span
+									>Calories (per {unit}) <span class="text-red-500">*</span
 									></label
 								>
 								<input
@@ -280,7 +299,7 @@
 
 							<div>
 								<label for="new-protein" class="mb-1 block font-medium"
-									>Protein (g per 100g) <span class="text-red-500">*</span
+									>Protein (g per {unit}) <span class="text-red-500">*</span
 									></label
 								>
 								<input
@@ -297,37 +316,21 @@
 					</div>
 				{/if}
 
-				<!-- Quantity and Unit (Always visible when ingredient selected or adding new) -->
+				<!-- Quantity (Always visible when ingredient selected or adding new) -->
 				{#if selectedIngredient || isAddingNew}
-					<div class="grid grid-cols-2 gap-4 mb-4">
-						<div>
-							<label for="quantity" class="mb-1 block font-medium"
-								>Quantity <span class="text-red-500">*</span></label
-							>
-							<input
-								id="quantity"
-								type="number"
-								bind:value={quantity}
-								min="0.1"
-								step="0.1"
-								class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
-							/>
-						</div>
-
-						<div>
-							<label for="unit" class="mb-1 block font-medium"
-								>Unit <span class="text-red-500">*</span></label
-							>
-							<select
-								id="unit"
-								bind:value={unit}
-								class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
-							>
-								{#each UNITS as unitOption (unitOption)}
-									<option value={unitOption}>{unitOption}</option>
-								{/each}
-							</select>
-						</div>
+					<div class="mb-4">
+						<label for="quantity" class="mb-1 block font-medium"
+							>Quantity ({unit}) <span class="text-red-500">*</span></label
+						>
+						<input
+							id="quantity"
+							type="number"
+							bind:value={quantity}
+							min="0.1"
+							step="0.1"
+							placeholder="e.g., 250"
+							class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+						/>
 					</div>
 
 					<!-- Nutrition Preview -->

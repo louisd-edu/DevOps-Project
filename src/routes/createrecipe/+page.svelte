@@ -2,7 +2,7 @@
 	import { enhance } from "$app/forms";
 	import type { SubmitFunction } from "@sveltejs/kit";
 	import { Chip } from "$lib";
-	import { getContext } from "svelte";
+	import { getContext, onMount, tick } from "svelte";
 	import { supabase as supabaseFallback } from "$lib/supabaseClient";
 	import type { SupabaseClient } from "@supabase/supabase-js";
 	import type { RecipeIngredient } from "$lib/types/RecipeIngredient";
@@ -18,6 +18,7 @@
 	let recipeName = $state("");
 	let cookingTime = $state<number | null>(null);
 	let selectedCuisine = $state<string | null>(null);
+	let selectedArea = $state<string | null>(null);
 	let recipeImageUrl = $state<string | undefined>(undefined);
 	let methodSteps = $state<string[]>([""]);
 	let ingredients = $state<RecipeIngredient[]>([]);
@@ -25,6 +26,11 @@
 	// UI state
 	let loading = $state(false);
 	let showIngredientModal = $state(false);
+
+	// Scroller/fade state for broader areas
+	let scroller = $state<HTMLDivElement | null>(null);
+	let showLeftFade = $state(false);
+	let showRightFade = $state(false);
 
 	// Auto-calculated nutritional totals
 	let totalCalories = $derived(
@@ -87,6 +93,58 @@
 			methodSteps.filter((s) => s.trim()).length > 0 &&
 			ingredients.length > 0
 	);
+
+	// Broader areas derived from cuisines
+	const allBroaderAreas = $derived(
+		Array.from(
+			new Set((data.cuisines ?? []).flatMap((c) => c.broader_areas ?? []))
+		).sort((a, b) => a.localeCompare(b))
+	);
+
+	// Cuisines for selected broader area
+	const cuisinesForSelectedArea = $derived(
+		selectedArea
+			? (data.cuisines ?? [])
+					.filter((c) => (c.broader_areas ?? []).includes(selectedArea))
+					.sort((a, b) => a.name.localeCompare(b.name))
+			: []
+	);
+
+	// Scroller fade effects
+	function updateFades() {
+		if (!scroller) {
+			showLeftFade = false;
+			showRightFade = false;
+			return;
+		}
+		const { scrollLeft, scrollWidth, clientWidth } = scroller;
+		showLeftFade = scrollLeft > 0;
+		showRightFade = scrollLeft + clientWidth < scrollWidth - 1;
+	}
+
+	// Toggle broader area selection
+	function toggleBroaderArea(area: string) {
+		const nextArea = selectedArea === area ? null : area;
+		selectedArea = nextArea;
+		selectedCuisine = null; // Clear cuisine when area changes
+	}
+
+	// Toggle cuisine selection
+	function toggleCuisine(name: string) {
+		const next = selectedCuisine === name ? null : name;
+		selectedCuisine = next;
+	}
+
+	// Initialize scroller
+	onMount(() => {
+		updateFades();
+		requestAnimationFrame(updateFades);
+	});
+
+	// Update fades when area changes
+	$effect(() => {
+		tick().then(() => updateFades());
+	});
 </script>
 
 <div class="container mx-auto max-w-4xl p-6">
@@ -158,26 +216,74 @@
 		</div>
 
 		<!-- Cuisine Selection -->
-		<div class="rounded-lg border border-slate-300 bg-white p-6">
-			<h2 class="mb-4 text-xl font-semibold">
+		<div class="rounded-lg border border-slate-300 bg-white p-6 space-y-4">
+			<h2 class="text-xl font-semibold">
 				Cuisine <span class="text-red-500">*</span>
 			</h2>
-			<div class="flex flex-wrap gap-2">
-				{#each data.cuisines as cuisine (cuisine.name)}
-					<Chip
-						background={selectedCuisine === cuisine.name
-							? "#0f766e"
-							: "#d1fae5"}
-						color={selectedCuisine === cuisine.name ? "#fff" : "#064e3b"}
-						ariaLabel={`Select ${cuisine.name} cuisine`}
-						onclick={() => (selectedCuisine = cuisine.name)}
+
+			<!-- Broader Areas (Scrollable) -->
+			{#if allBroaderAreas.length}
+				<div class="relative -mb-2">
+					<div
+						class="flex overflow-x-auto items-center gap-2 pb-2 pr-6"
+						style="scrollbar-gutter: stable both-edges;"
+						bind:this={scroller}
+						onscroll={updateFades}
 					>
-						{cuisine.name}
-					</Chip>
-				{/each}
-			</div>
+						{#each allBroaderAreas as area (area)}
+							<Chip
+								background={selectedArea === area ? "#111827" : "#e5e7eb"}
+								color={selectedArea === area ? "#fff" : "#111827"}
+								ariaLabel={`Select ${area} region`}
+								onclick={() => toggleBroaderArea(area)}
+							>
+								{area}
+							</Chip>
+						{/each}
+					</div>
+					{#if showLeftFade}
+						<div
+							class="pointer-events-none absolute left-0 top-0 h-full w-10"
+							style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));"
+						></div>
+					{/if}
+					{#if showRightFade}
+						<div
+							class="pointer-events-none absolute right-0 top-0 h-full w-10"
+							style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));"
+						></div>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- Cuisines for Selected Area (Wrapped) -->
+			{#if cuisinesForSelectedArea.length}
+				<div class="flex flex-wrap items-center gap-2">
+					{#each cuisinesForSelectedArea as cuisine (cuisine.name)}
+						<Chip
+							background={selectedCuisine === cuisine.name
+								? "#0f766e"
+								: "#d1fae5"}
+							color={selectedCuisine === cuisine.name ? "#fff" : "#064e3b"}
+							ariaLabel={`Select ${cuisine.name} cuisine`}
+							onclick={() => toggleCuisine(cuisine.name)}
+						>
+							{cuisine.name}
+						</Chip>
+					{/each}
+				</div>
+			{:else if !selectedArea}
+				<p class="text-slate-500 text-sm">
+					Select a region above to see available cuisines
+				</p>
+			{:else}
+				<p class="text-slate-500 text-sm">
+					No cuisines available for this region
+				</p>
+			{/if}
+
 			{#if errors.cuisine}
-				<p class="mt-2 text-sm text-red-500">{errors.cuisine}</p>
+				<p class="text-sm text-red-500">{errors.cuisine}</p>
 			{/if}
 		</div>
 
