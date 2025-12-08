@@ -33,6 +33,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     "favorites",
     supabase,
     profile.id,
+    isOwner, // Only include private recipes if viewing own list
   );
 
   return {

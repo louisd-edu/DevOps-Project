@@ -141,7 +141,8 @@
                 profiles(id,username,avatar_url)
                 `,
                 { count: 'exact' }
-            );
+            )
+            .eq('is_public', true); // Only show public recipes
 
         // Apply cuisine/area filter
         if (currentCuisine) {
