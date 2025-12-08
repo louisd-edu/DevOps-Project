@@ -39,7 +39,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   // Normalize recipe image URL
   const recipeData = data as Record<string, unknown>;
-  const recipeImagePath = (recipeData.recipeimageurl ?? recipeData.recipeImage ?? null) as string | null;
+  const recipeImagePath = (recipeData.recipeimageurl ??
+    recipeData.recipeImage ??
+    null) as string | null;
   const publicRecipeUrl = toPublicUrl(recipeImagePath, "recipeimages");
   recipeData.recipeImageUrl = publicRecipeUrl;
 
