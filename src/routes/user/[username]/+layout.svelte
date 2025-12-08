@@ -30,22 +30,22 @@
 </script>
 
 
-<div class="mt-5 mb-4 rounded-[136px] bg-gray-100 relative overflow-hidden">
+<div class="mt-5 mb-4 rounded-[136px] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden shadow-lg">
     <!-- Level progress background fill -->
     <div
-        class="absolute inset-0 bg-gradient-to-r from-green-200/40 to-green-300/40 rounded-[136px] transition-all duration-500"
+        class="absolute inset-0 bg-gradient-to-r from-primary-300/50 to-accent-300/50 dark:from-primary-600/40 dark:to-accent-500/40 rounded-[136px] transition-all duration-500"
         style={`width: ${levelPct}%`}
     ></div>
 
     <div class="flex-row flex relative top-0 right-0 p-10">
-        <img src={avatar} alt={profile?.username} class="rounded-full w-48 h-48" />
+        <img src={avatar} alt={profile?.username} class="rounded-full w-48 h-48 ring-4 ring-white dark:ring-neutral-700 shadow-xl" />
         <div class="flex flex-col justify-center ml-6">
-            <div class="font-bold text-4xl">{profile?.displayname}</div>
-            <div>@{profile?.username}</div>
-            <div class="text-sm text-gray-600 mt-2">Level {level} • {levelPct}% to next level</div>
+            <div class="font-bold text-4xl text-neutral-900 dark:text-neutral-50">{profile?.displayname}</div>
+            <div class="text-neutral-700 dark:text-neutral-300 text-lg">@{profile?.username}</div>
+            <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2 font-medium">Level {level} • {levelPct}% to next level</div>
             <div>
                 <form method="POST" action="/account?/signout">
-                    <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900">Log out</button>
+                    <button type="submit" class="underline text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors">Log out</button>
                 </form>
             </div>
         </div>
@@ -53,19 +53,19 @@
 </div>
 <div class="mt-5 mb-4 lg:px-10">
     <button
-      class={`p-3 rounded-full transition-colors ${isMy ? 'bg-green-300 text-white' : 'bg-gray-50 hover:bg-green-100'}`}
+      class={`px-5 py-3 rounded-full transition-all font-medium ${isMy ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg ring-2 ring-primary-600 dark:ring-primary-400' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 hover:bg-accent-200 dark:hover:bg-accent-800'}`}
       onclick={() => go(`/user/${profile?.username}`)}
     >
-      MyRecipes
+      My Recipes
     </button>
     <button
-      class={`p-3 rounded-full transition-colors ml-2 ${isLiked ? 'bg-green-300 text-white' : 'bg-gray-50 hover:bg-green-100'}`}
+      class={`px-5 py-3 rounded-full transition-all ml-2 font-medium ${isLiked ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg ring-2 ring-primary-600 dark:ring-primary-400' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 hover:bg-accent-200 dark:hover:bg-accent-800'}`}
       onclick={() => go(`/user/${profile?.username}/liked`)}
     >
       Liked
     </button>
     <button
-      class={`p-3 rounded-full transition-colors ml-2 ${isSaved ? 'bg-green-300 text-white' : 'bg-gray-50 hover:bg-green-100'}`}
+      class={`px-5 py-3 rounded-full transition-all ml-2 font-medium ${isSaved ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg ring-2 ring-primary-600 dark:ring-primary-400' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-50 hover:bg-accent-200 dark:hover:bg-accent-800'}`}
       onclick={() => go(`/user/${profile?.username}/saved`)}
     >
       Saved

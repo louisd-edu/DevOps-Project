@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="Add privacy settings and share token management for recipes">
-      <change beforePath="$PROJECT_DIR$/src/lib/components/ShareButton.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/components/ShareButton.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/recipe/[slug]/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/recipe/[slug]/+page.svelte" afterDir="false" />
-    </list>
+    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,141 +13,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 3
-}</component>
-  <component name="ProjectId" id="35bIUstoYEEONshT2sZloIIPd70" />
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "fixedlikes",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/leonard/Desktop/Solent/DevOps/DevOps-Project",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "yarn",
-    "settings.editor.selected.configurable": "configurable.group.editor",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/Users/leonard/Desktop/Solent/DevOps/DevOps-Project/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+    "git-widget-placeholder": "frontend"
   }
 }]]></component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9c94529fcfe0-JavaScript-WS-252.26199.162" />
-      </set>
-    </attachedChunks>
-  </component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="" />
-      <created>1763372363517</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1763372363517</updated>
-      <workItem from="1763372364793" duration="4222000" />
-      <workItem from="1763377190583" duration="309000" />
-      <workItem from="1763377885644" duration="346000" />
-      <workItem from="1763382247802" duration="941000" />
-    </task>
-    <task id="LOCAL-00001" summary="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)">
-      <option name="closed" value="true" />
-      <created>1765192629610</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1765192629610</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Refactor recipe page to utilize context for Supabase client and session management">
-      <option name="closed" value="true" />
-      <created>1765193214333</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1765193214333</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Refactor ingredient handling to use MeasurementUnit type and enhance image upload with user-specific paths">
-      <option name="closed" value="true" />
-      <created>1765204485253</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1765204485253</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Refactor ingredient handling to use MeasurementUnit type and enhance image upload with user-specific paths">
-      <option name="closed" value="true" />
-      <created>1765204742806</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1765204742806</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Add privacy settings for liked and saved recipes with user-specific visibility options">
-      <option name="closed" value="true" />
-      <created>1765205461688</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1765205461688</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Implement recipe deletion functionality with ownership verification">
-      <option name="closed" value="true" />
-      <created>1765205967841</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1765205967841</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Add privacy settings and share token management for recipes">
-      <option name="closed" value="true" />
-      <created>1765207467973</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1765207467973</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Add privacy settings and share token management for recipes">
-      <option name="closed" value="true" />
-      <created>1765207754523</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1765207754523</updated>
-    </task>
-    <option name="localTasksCounter" value="9" />
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)" />
-    <MESSAGE value="Refactor recipe page to utilize context for Supabase client and session management" />
-    <MESSAGE value="Refactor ingredient handling to use MeasurementUnit type and enhance image upload with user-specific paths" />
-    <MESSAGE value="Add privacy settings for liked and saved recipes with user-specific visibility options" />
-    <MESSAGE value="Implement recipe deletion functionality with ownership verification" />
-    <MESSAGE value="Add privacy settings and share token management for recipes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add privacy settings and share token management for recipes" />
   </component>
 </project>

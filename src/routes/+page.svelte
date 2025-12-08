@@ -315,19 +315,19 @@
                 oninput={handleSearchInput}
                 onkeydown={(e) => (e.key === 'Enter' || e.key === 'NumpadEnter') && onSearchSubmit()}
                 bind:this={searchEl}
-                class="px-3 py-2 rounded border border-slate-300 focus:outline-none focus:ring focus:ring-slate-200 w-full"
+                class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-transparent w-full transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
             />
             <div class="flex items-center gap-2">
-                <select value={currentSortBy} onchange={onSortByChange} class="pl-3 pr-8 py-2 rounded border border-slate-300">
+                <select value={currentSortBy} onchange={onSortByChange} class="pl-3 pr-8 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-all">
                     <option value="name">Name</option>
                     <option value="time">Cooking time</option>
                 </select>
-                <select value={currentSortDir} onchange={onSortDirChange} class="pl-3 pr-8 py-2 rounded border border-slate-300">
+                <select value={currentSortDir} onchange={onSortDirChange} class="pl-3 pr-8 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-all">
                     <option value="asc">Asc</option>
                     <option value="desc">Desc</option>
                 </select>
-                <!--button class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300" onclick={onSearchSubmit}>Search</button-->
-                <button class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300" onclick={clearFilters}>Clear</button>
+                <!--button class="px-3 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-neutral-50 transition-colors" onclick={onSearchSubmit}>Search</button-->
+                <button class="px-3 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 text-neutral-900 dark:text-neutral-50 font-medium transition-colors" onclick={clearFilters}>Clear</button>
             </div>
         </div>
 
@@ -341,25 +341,25 @@
                 onscroll={updateFades}
             >
                 <Chip
-                    background={currentArea === null ? '#111827' : '#e5e7eb'}
-                    color={currentArea === null ? '#fff' : '#111827'}
+                    background={currentArea === null ? '#22c55e' : ''}
+                    color={currentArea === null ? '#fff' : ''}
                     ariaLabel="All areas"
                     onclick={toggleAllAreas}
                 >All areas</Chip>
                 {#each sortedBroaderAreas as area (area)}
                     <Chip
-                        background={currentArea === area ? '#111827' : '#e5e7eb'}
-                        color={currentArea === area ? '#fff' : '#111827'}
+                        background={currentArea === area ? '#22c55e' : ''}
+                        color={currentArea === area ? '#fff' : ''}
                         ariaLabel={`Broader area ${area}`}
                         onclick={() => toggleBroaderArea(area)}
-                    >{area} <span class="text-gray-400">{areaRecipeCounts[area] ?? 0}</span></Chip>
+                    >{area} <span class="opacity-60 ml-1">{areaRecipeCounts[area] ?? 0}</span></Chip>
                 {/each}
             </div>
             {#if showLeftFade}
-                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
+                <div class="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-neutral-50 dark:from-neutral-950 to-transparent"></div>
             {/if}
             {#if showRightFade}
-                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
+                <div class="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-neutral-50 dark:from-neutral-950 to-transparent"></div>
             {/if}
         </div>
         {/if}
@@ -369,8 +369,8 @@
         <div class="flex flex-wrap items-center gap-2">
             {#each cuisinesForSelectedArea as c (c.name)}
                 <Chip
-                    background={currentCuisine === c.name ? '#0f766e' : '#d1fae5'}
-                    color={currentCuisine === c.name ? '#fff' : '#064e3b'}
+                    background={currentCuisine === c.name ? '#22c55e' : ''}
+                    color={currentCuisine === c.name ? '#fff' : ''}
                     ariaLabel={`Cuisine ${c.name}`}
                     onclick={() => toggleCuisine(c.name)}
                 >{c.name}</Chip>
@@ -385,17 +385,17 @@
             <RecipeComponent {recipe} />
         {/each}
         {#if !recipes.length}
-            <p class="text-slate-500 p-4">No recipes match your filters.</p>
+            <p class="text-neutral-500 dark:text-neutral-400 p-4">No recipes match your filters.</p>
         {/if}
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-center gap-2 py-4">
-        <button class="px-3 py-2 rounded bg-slate-200 disabled:opacity-50" disabled={currentPage <= 1} onclick={() => gotoPage(currentPage - 1)}>
+        <button class="px-4 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed text-neutral-900 dark:text-neutral-50 font-medium transition-colors" disabled={currentPage <= 1} onclick={() => gotoPage(currentPage - 1)}>
             Prev
         </button>
-        <span class="text-sm text-slate-600">Page {currentPage} of {totalPages} • {total} results</span>
-        <button class="px-3 py-2 rounded bg-slate-200 disabled:opacity-50" disabled={currentPage >= totalPages} onclick={() => gotoPage(currentPage + 1)}>
+        <span class="text-sm text-neutral-600 dark:text-neutral-400 font-medium">Page {currentPage} of {totalPages} • {total} results</span>
+        <button class="px-4 py-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed text-neutral-900 dark:text-neutral-50 font-medium transition-colors" disabled={currentPage >= totalPages} onclick={() => gotoPage(currentPage + 1)}>
             Next
         </button>
     </div>
