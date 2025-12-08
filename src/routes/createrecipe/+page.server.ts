@@ -1,4 +1,4 @@
-import { fail, redirect } from "@sveltejs/kit";
+import { fail, redirect, isRedirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import type { Ingredient } from "$lib/types/Ingredient";
 import type { Cuisine } from "$lib/types/Cuisine";
@@ -216,7 +216,7 @@ export const actions: Actions = {
 			throw redirect(303, `/recipe/${recipe.id}`);
 		} catch (error) {
 			// Re-throw redirects
-			if (error instanceof Response) throw error;
+			if (isRedirect(error)) throw error;
 
 			console.error("Unexpected error:", error);
 			return fail(500, {

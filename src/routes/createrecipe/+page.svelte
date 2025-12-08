@@ -167,7 +167,11 @@
 		<!-- Recipe Image Upload -->
 		<div class="rounded-lg border border-slate-300 bg-white p-6">
 			<h2 class="mb-4 text-xl font-semibold">Recipe Image</h2>
-			<RecipeImageUpload {sb} bind:url={recipeImageUrl} />
+			<RecipeImageUpload
+				{sb}
+				userId={data.session?.user?.id ?? ""}
+				bind:url={recipeImageUrl}
+			/>
 		</div>
 
 		<!-- Basic Information -->
