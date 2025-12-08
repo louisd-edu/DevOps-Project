@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import Avatar from "$lib/components/Avatar.svelte";
+    import PrivacyBadge from "$lib/components/PrivacyBadge.svelte";
     import type {Recipe} from "$lib/types/Recipe";
     import {Chip} from "$lib";
     import Icon from '@iconify/svelte';
@@ -9,7 +10,7 @@
     import {prepareImageUrls} from "$lib/components/prepareImageUrls";
     import { goto } from '$app/navigation';
 
-    let { recipe } = $props<{ recipe: Recipe }>();
+    let { recipe, showPrivacyBadge = false } = $props<{ recipe: Recipe; showPrivacyBadge?: boolean }>();
 
     let image = $state<string | null>(null);
 
@@ -65,11 +66,14 @@
 
 <div class="bg-gray-200 p-2 rounded-[28px] min-w-fit sm:rounded-[40px] cursor-pointer hover:bg-gray-300 transition-colors" onclick={goToRecipe}>
     <div
-        class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2"
+        class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2 relative"
         style={image ? `background-image: url('${image}')` : undefined}
         role="img"
         aria-label="recipe image"
     >
+        {#if showPrivacyBadge}
+            <PrivacyBadge isPublic={recipe.is_public} />
+        {/if}
         <button
             type="button"
             aria-label={isFavorited ? 'Unlike' : 'Like'}

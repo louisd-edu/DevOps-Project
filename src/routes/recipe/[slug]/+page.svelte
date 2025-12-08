@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Chip } from "$lib";
   import Avatar from "$lib/components/Avatar.svelte";
+  import ShareButton from "$lib/components/ShareButton.svelte";
   import { getContext } from 'svelte';
   import { goto } from '$app/navigation';
   import type { Session } from '@supabase/supabase-js';
@@ -38,8 +39,15 @@
           <div class="flex justify-between items-start">
             <h1 class="font-bold text-3xl lg:text-4xl">{recipe.recipename}</h1>
 
-            {#if isOwner}
-              <div class="flex gap-2">
+            <div class="flex gap-2">
+              <!-- Share button (always visible) -->
+              <ShareButton
+                recipeId={recipe.id}
+                isPublic={recipe.is_public}
+                shareToken={recipe.share_token}
+              />
+
+              {#if isOwner}
                 <button
                   type="button"
                   onclick={() => goto(`/recipe/${recipe.id}/edit`)}
@@ -67,8 +75,8 @@
                     {deleting ? 'Deleting...' : 'Delete'}
                   </button>
                 </form>
-              </div>
-            {/if}
+              {/if}
+            </div>
           </div>
 
           <div class="flex flex-wrap gap-2">

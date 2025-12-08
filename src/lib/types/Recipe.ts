@@ -12,4 +12,7 @@ export type Recipe = {
   // the query in +layout.server.ts requests a nested profiles object
   profiles: Profile;
   profileAvatar: string | null;
+  // Privacy fields
+  is_public: boolean;
+  share_token: string | null;
 };

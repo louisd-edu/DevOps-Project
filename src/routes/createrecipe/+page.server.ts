@@ -3,6 +3,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import type { Ingredient } from "$lib/types/Ingredient";
 import type { Cuisine } from "$lib/types/Cuisine";
 import type { RecipeIngredient } from "$lib/types/RecipeIngredient";
+import { generateShareToken } from "$lib/server/generateShareToken";
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
 	const { session } = await safeGetSession();
@@ -63,6 +64,7 @@ export const actions: Actions = {
 		const ingredients = JSON.parse(
 			formData.get("ingredients") as string
 		) as RecipeIngredient[];
+		const isPublic = formData.get("isPublic") === "true";
 
 		// Validation
 		const errors: Record<string, string> = {};
@@ -126,6 +128,9 @@ export const actions: Actions = {
 		// Filter empty method steps
 		const cleanedSteps = methodSteps.map((s) => s.trim()).filter((s) => s.length > 0);
 
+		// Generate share token for private recipes
+		const shareToken = isPublic ? null : generateShareToken();
+
 		try {
 			// STEP 1: Insert new ingredients (if any)
 			const newIngredients = ingredients.filter((ing) => ing.isNew);
@@ -178,6 +183,8 @@ export const actions: Actions = {
 					method: cleanedSteps,
 					total_calories: Math.round(totalCalories),
 					total_protein: parseFloat(totalProtein.toFixed(1)),
+					is_public: isPublic,
+					share_token: shareToken,
 				})
 				.select("id")
 				.single();

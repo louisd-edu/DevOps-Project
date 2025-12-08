@@ -2,9 +2,13 @@
 import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect } from "@sveltejs/kit";
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-  const { supabase } = locals;
+export const load: PageServerLoad = async ({ params, locals, url }) => {
+  const { supabase, safeGetSession } = locals;
+  const { session } = await safeGetSession();
   const { slug } = params;
+
+  // Get token from query params for private recipe access
+  const token = url.searchParams.get('token');
 
   const { data, error } = await supabase
     .from("recipes")
@@ -26,6 +30,25 @@ export const load: PageServerLoad = async ({ params, locals }) => {
     console.error("Error fetching recipe:", error);
     return { error: error.message };
   }
+
+  // Access control check
+  const isOwner = session?.user?.id === data.user_id;
+
+  if (!data.is_public) {
+    // Recipe is private - check authorization
+    if (isOwner) {
+      // Owner can always view their own recipes
+    } else if (token && token === data.share_token) {
+      // Valid token provided
+    } else {
+      // Unauthorized: no token or invalid token
+      return {
+        error: "This recipe is private. You need a valid link to view it.",
+        unauthorized: true
+      };
+    }
+  }
+  // Public recipes are accessible to everyone
 
   // Helper to convert a storage path to a public URL (no-op if already a URL)
   function toPublicUrl(
