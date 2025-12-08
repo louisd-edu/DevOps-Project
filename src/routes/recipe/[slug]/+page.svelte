@@ -21,24 +21,24 @@
 
 <div class="mx-auto p-3 max-w-7xl space-y-4">
   {#if error}
-    <p class="text-red-500 p-4">Error: {error}</p>
+    <p class="text-red-500 dark:text-red-400 p-4">Error: {error}</p>
   {:else if recipe}
     <!-- Recipe Header -->
-    <div class="bg-white border border-slate-300 rounded-lg p-6 space-y-4">
+    <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-6 space-y-4 shadow-lg">
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Recipe Image -->
         <div class="lg:w-1/3">
           <img
             src={recipe.recipeImageUrl}
             alt={recipe.recipename}
-            class="w-full h-64 lg:h-full object-cover rounded-lg"
+            class="w-full h-64 lg:h-full object-cover rounded-lg ring-2 ring-neutral-300 dark:ring-neutral-600"
           />
         </div>
 
         <!-- Recipe Info -->
         <div class="lg:w-2/3 space-y-4">
           <div class="flex justify-between items-start gap-3">
-            <h1 class="font-bold text-2xl sm:text-3xl lg:text-4xl flex-1 min-w-0">{recipe.recipename}</h1>
+            <h1 class="font-bold text-2xl sm:text-3xl lg:text-4xl flex-1 min-w-0 text-neutral-900 dark:text-neutral-50">{recipe.recipename}</h1>
 
             <div class="flex gap-2 flex-shrink-0">
               <!-- Share button (always visible on mobile as icon-only) -->
@@ -55,7 +55,7 @@
                     // eslint-disable-next-line svelte/no-navigation-without-resolve
                     goto(`/recipe/${recipe.id}/edit`);
                   }}
-                  class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-blue-700 active:scale-95"
+                  class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-primary-500 dark:bg-primary-600 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:bg-primary-600 dark:hover:bg-primary-700 active:scale-95"
                   title="Edit this recipe"
                 >
                   <Icon icon="mdi:pencil" height="20" />
@@ -77,7 +77,7 @@
                   <button
                     type="submit"
                     disabled={deleting}
-                    class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-red-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-red-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                    class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-red-600 dark:bg-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:bg-red-700 dark:hover:bg-red-800 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                     title={deleting ? 'Deleting recipe...' : 'Delete this recipe'}
                   >
                     <Icon icon={deleting ? 'mdi:loading' : 'mdi:delete'} height="20" class={deleting ? 'animate-spin' : ''} />
@@ -96,8 +96,8 @@
           <div class="flex items-center gap-3 pt-2">
             <Avatar url={recipe.profiles?.avatar_url} size="h-12 w-12" />
             <div>
-              <div class="font-medium text-lg">{recipe.profiles?.username}</div>
-              <div class="text-slate-500 text-sm">Recipe Creator</div>
+              <div class="font-medium text-lg text-neutral-900 dark:text-neutral-50">{recipe.profiles?.username}</div>
+              <div class="text-neutral-600 dark:text-neutral-400 text-sm">Recipe Creator</div>
             </div>
           </div>
         </div>
@@ -105,30 +105,30 @@
     </div>
 
     <!-- Ingredients Section -->
-    <div class="bg-white border border-slate-300 rounded-lg p-6">
-      <h2 class="font-bold text-2xl mb-4">Ingredients</h2>
+    <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-6 shadow-lg">
+      <h2 class="font-bold text-2xl mb-4 text-neutral-900 dark:text-neutral-50">Ingredients</h2>
       <div class="overflow-x-auto">
         <table class="w-full border-collapse">
           <thead>
-            <tr class="border-b border-slate-300">
-              <th class="text-left px-4 py-3 font-semibold">Quantity</th>
-              <th class="text-left px-4 py-3 font-semibold">Ingredient</th>
-              <th class="text-left px-4 py-3 font-semibold">Nutrition</th>
+            <tr class="border-b border-neutral-300 dark:border-neutral-600">
+              <th class="text-left px-4 py-3 font-semibold text-neutral-900 dark:text-neutral-50">Quantity</th>
+              <th class="text-left px-4 py-3 font-semibold text-neutral-900 dark:text-neutral-50">Ingredient</th>
+              <th class="text-left px-4 py-3 font-semibold text-neutral-900 dark:text-neutral-50">Nutrition</th>
             </tr>
           </thead>
           <tbody>
             {#each recipe.recipe_ingredients as recipeIngredient (recipeIngredient.id || recipeIngredient.ingredientid)}
-              <tr class="border-b border-slate-200 hover:bg-slate-50">
-                <td class="px-4 py-3">
+              <tr class="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+                <td class="px-4 py-3 text-neutral-900 dark:text-neutral-50">
                   {recipeIngredient.quantity || 'N/A'}
                   {#if recipeIngredient.type && recipeIngredient.type.toLowerCase() !== 'none'}
                     {recipeIngredient.type}
                   {/if}
                 </td>
-                <td class="px-4 py-3">
+                <td class="px-4 py-3 text-neutral-900 dark:text-neutral-50">
                   {recipeIngredient.ingredient?.name || recipeIngredient.ingredientid || 'N/A'}
                 </td>
-                <td class="px-4 py-3 text-slate-600">
+                <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">
                   {recipeIngredient.ingredients?.calories ?? '-'}kcal • {recipeIngredient.ingredients?.protein ?? '-'}g protein
                 </td>
               </tr>
@@ -139,33 +139,33 @@
     </div>
 
     <!-- Method Section -->
-    <div class="bg-white border border-slate-300 rounded-lg p-6">
-      <h2 class="font-bold text-2xl mb-4">Method</h2>
+    <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-6 shadow-lg">
+      <h2 class="font-bold text-2xl mb-4 text-neutral-900 dark:text-neutral-50">Method</h2>
       {#if recipe.method && recipe.method.length > 0}
         <div class="space-y-4">
           {#each recipe.method as step, index (index)}
             <div class="flex gap-4">
-              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-semibold">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-500 dark:bg-primary-600 text-white flex items-center justify-center font-semibold shadow-md">
                 {index + 1}
               </div>
               <div class="flex-1 pt-1">
-                <p class="text-slate-700">{step}</p>
+                <p class="text-neutral-700 dark:text-neutral-300">{step}</p>
               </div>
             </div>
           {/each}
         </div>
       {:else}
-        <p class="text-slate-500 italic">No method steps provided.</p>
+        <p class="text-neutral-500 dark:text-neutral-400 italic">No method steps provided.</p>
       {/if}
     </div>
 
     <!-- Comments Section -->
-    <div class="bg-white border border-slate-300 rounded-lg p-6">
-      <h2 class="font-bold text-2xl mb-4">Comments</h2>
+    <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-6 shadow-lg">
+      <h2 class="font-bold text-2xl mb-4 text-neutral-900 dark:text-neutral-50">Comments</h2>
       <input
         type="text"
         placeholder="Add a comment..."
-        class="w-full px-3 py-2 rounded border border-slate-300 focus:outline-none focus:ring focus:ring-slate-200"
+        class="w-full px-3 py-2 rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
       />
     </div>
   {/if}
