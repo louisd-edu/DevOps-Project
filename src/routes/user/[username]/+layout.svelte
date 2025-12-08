@@ -20,16 +20,30 @@
     const isLiked = $derived(pathname.startsWith(`${base}/liked`))
     const isSaved = $derived(pathname.startsWith(`${base}/saved`))
 
+    // Calculate level percentage (progress within current level)
+    let levelPct = $derived.by(() => {
+        const n = Number(profile?.level ?? 0);
+        return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n % 100))) : 0;
+    });
+
+    let level = $derived(Math.trunc(Number(profile?.level ?? 0) / 100));
+
 </script>
 
 
-<div class=" mt-5 mb-4 rounded-[136px] bg-gray-100  relative">
+<div class="mt-5 mb-4 rounded-[136px] bg-gray-100 relative overflow-hidden">
+    <!-- Level progress background fill -->
+    <div
+        class="absolute inset-0 bg-gradient-to-r from-green-200/40 to-green-300/40 rounded-[136px] transition-all duration-500"
+        style={`width: ${levelPct}%`}
+    ></div>
+
     <div class="flex-row flex relative top-0 right-0 p-10">
         <img src={avatar} alt={profile?.username} class="rounded-full w-48 h-48" />
         <div class="flex flex-col justify-center ml-6">
-
             <div class="font-bold text-4xl">{profile?.displayname}</div>
             <div>@{profile?.username}</div>
+            <div class="text-sm text-gray-600 mt-2">Level {level} • {levelPct}% to next level</div>
             <div>
                 <form method="POST" action="/account?/signout">
                     <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900">Log out</button>
@@ -37,7 +51,6 @@
             </div>
         </div>
     </div>
-
 </div>
 <div class="mt-5 mb-4 lg:px-10">
     <button
