@@ -7,11 +7,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   const { data, error } = await supabase
     .from("recipes")
-    .select(`
+    .select(
+      `
       *,
       profiles ( username, avatar_url, level ),
       recipe_ingredients(*, ingredients(*, name, calories, protein) )
-    `)
+    `,
+    )
     .eq("id", slug)
     .single();
 
@@ -22,10 +24,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   if (error) {
     console.error("Error fetching recipe:", error);
     return { error: error.message };
-  }  
+  }
 
   // Helper to convert a storage path to a public URL (no-op if already a URL)
-  function toPublicUrl(path: string | null | undefined, bucket: string): string | null {
+  function toPublicUrl(
+    path: string | null | undefined,
+    bucket: string,
+  ): string | null {
     if (!path) return null;
     if (/^https?:\/\//.test(path)) return path;
     const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
@@ -33,14 +38,18 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   // Normalize recipe image URL
-  const recipeImagePath = (data as any).recipeimageurl ?? (data as any).recipeImage ?? null;
+  const recipeImagePath =
+    (data as any).recipeimageurl ?? (data as any).recipeImage ?? null;
   const publicRecipeUrl = toPublicUrl(recipeImagePath, "recipeimages");
   (data as any).recipeImageUrl = publicRecipeUrl;
 
   // Normalize avatar URL on nested profile
   if ((data as any).profiles?.avatar_url) {
-    (data as any).profiles.avatar_url = toPublicUrl((data as any).profiles.avatar_url, "avatars");
+    (data as any).profiles.avatar_url = toPublicUrl(
+      (data as any).profiles.avatar_url,
+      "avatars",
+    );
   }
-  
+
   return { recipe: data };
 };
