@@ -44,9 +44,8 @@
     <div class="flex-1 min-w-0"></div>
 
     <!-- Center logo -->
-    <div class="shrink-0 order-first md:order-none">
-        <button onclick={goHome}>
-
+    <div class="shrink-0 order-first md:order-none flex items-center">
+        <button onclick={goHome} class="flex items-center">
       <img src={yumlogo} class="h-8 md:h-10" alt="logo" />
         </button>
     </div>
