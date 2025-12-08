@@ -1,3 +1,6 @@
+<script>
+</script>
+
 <style>
   .auth-page {
     --login-window-bg: linear-gradient(rgba(220, 252, 231, 0.3) 0%, rgba(240, 253, 244, 0.5) 100%);
@@ -272,18 +275,17 @@
         <div class="container">
             <div class="login-content">
                 <h2>Login</h2>
-                <form>
-                    <input type="text" class="textField" placeholder="Username or Email" required>
-                    <input type="password" class="textField" placeholder="Password" required>
+                <form method="POST" action="?/login">
+                    <input type="email" name="email"  class="textField" placeholder="Email" required>
+                    <input type="password" name="password" class="textField" placeholder="Password" required>
                     <input type="submit" class="buttons" id="login-btn" value="Sign In">
                 </form>
             </div>
             <div class="register-content">
                 <h2>Register</h2>
-                <form>
-                    <input type="email" class="textField" placeholder="Email Address" required>
-                    <input type="text" class="textField" placeholder="Username" required>
-                    <input type="password" class="textField" placeholder="Password" required>
+                <form method="POST" action="?/signup">
+                    <input type="email" name="email" class="textField" placeholder="Email Address" required>
+                    <input type="password" name="password"  class="textField" placeholder="Password" required>
                     <input type="submit" class="buttons" id="register-btn" value="Create Account">
                 </form>
             </div>

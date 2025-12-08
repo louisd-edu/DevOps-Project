@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="" />
+    <list default="true" id="bcc1a81b-4976-42fc-ac3b-047a671fab9b" name="Changes" comment="Adds recipe creation page with image upload&#10;&#10;Implements the recipe creation page, allowing users to input recipe details,&#10;including name, cooking time, cuisine, method steps, and ingredients.&#10;Integrates image upload functionality with cropping.&#10;Adds ingredient modal for adding new and existing ingredients.&#10;&#10;(cherry picked from commit b8de65470a5a0d59292d8adcfc18073badf3b5a6)&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/lib/components/IngredientModal.svelte&#10;#&#9;src/lib/components/RecipeImageUpload.svelte&#10;#&#9;src/lib/types/Ingredient.ts&#10;#&#9;src/lib/types/RecipeIngredient.ts&#10;#&#9;src/routes/createrecipe/+page.server.ts&#10;#&#9;src/routes/createrecipe/+page.svelte">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/auth/+layout.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/+layout.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/auth/+page.server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/+page.server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/auth/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/+page.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/auth/confirm/+server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth/confirm/+server.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,12 +19,44 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="36Zp7UixvjdRd8d1iVXqfMtOn3r" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "git-widget-placeholder": "frontend"
+    "git-widget-placeholder": "frontend",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "ts.external.directory.path": "/Users/leonard/Desktop/Solent/DevOps/DevOps-Project/node_modules/typescript/lib"
   }
 }]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9c94529fcfe0-JavaScript-WS-252.26199.162" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
