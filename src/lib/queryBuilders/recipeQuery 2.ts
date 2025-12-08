@@ -8,7 +8,6 @@ export interface RecipeQueryOptions {
   sortDir?: "asc" | "desc";
   page?: number;
   pageSize?: number;
-  includePrivate?: boolean;
 }
 
 /**
@@ -39,7 +38,6 @@ export function buildRecipeQuery(
     sortDir = "asc",
     page = 1,
     pageSize = 12,
-    includePrivate = false,
   } = options;
 
   let query = supabase.from("recipes").select(
@@ -50,17 +48,10 @@ export function buildRecipeQuery(
 			recipeimageurl,
 			cuisine,
 			cookingtime,
-			is_public,
-			share_token,
 			profiles!inner(id, username, avatar_url, displayname, level)
 		`,
     { count: "exact" },
   );
-
-  // Filter by privacy (exclude private recipes by default)
-  if (!includePrivate) {
-    query = query.eq("is_public", true);
-  }
 
   // Apply cuisine filter (expects exact cuisine names)
   if (cuisines.length > 0) {

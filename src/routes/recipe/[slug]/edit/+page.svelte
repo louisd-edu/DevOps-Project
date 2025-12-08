@@ -6,6 +6,7 @@
 	import { supabase as supabaseFallback } from "$lib/supabaseClient";
 	import type { SupabaseClient } from "@supabase/supabase-js";
 	import type { RecipeIngredient } from "$lib/types/RecipeIngredient";
+	import type { Cuisine } from "$lib/types/Cuisine";
 	import RecipeImageUpload from "$lib/components/RecipeImageUpload.svelte";
 	import IngredientModal from "$lib/components/IngredientModal.svelte";
 
@@ -41,15 +42,37 @@
 		ingredients.reduce((sum, ing) => sum + ing.protein * ing.quantity, 0)
 	);
 
-	// Restore form data on error
-	$effect(() => {
-		if (form?.data) {
-			recipeName = form.data.recipeName ?? "";
-			cookingTime = form.data.cookingTime ?? null;
-			selectedCuisine = form.data.cuisine ?? null;
-			recipeImageUrl = form.data.recipeImageUrl ?? undefined;
-			methodSteps = form.data.methodSteps ?? [""];
-			ingredients = form.data.ingredients ?? [];
+	// Initialize form with existing recipe data
+	onMount(() => {
+		if (data.recipe) {
+			recipeName = data.recipe.recipename ?? "";
+			cookingTime = data.recipe.cookingtime ?? null;
+			selectedCuisine = data.recipe.cuisine ?? null;
+			recipeImageUrl = data.recipe.recipeimageurl ?? undefined;
+			methodSteps = data.recipe.method && data.recipe.method.length > 0 ? data.recipe.method : [""];
+
+			// Convert recipe_ingredients to RecipeIngredient format
+			if (data.recipe.recipe_ingredients) {
+				ingredients = data.recipe.recipe_ingredients.map((ri: { ingredientid: string; quantity: number; type: string; ingredients?: { calories: number; protein: number } }) => ({
+					name: ri.ingredientid,
+					quantity: ri.quantity,
+					unit: ri.type,
+					calories: ri.ingredients?.calories ?? 0,
+					protein: ri.ingredients?.protein ?? 0,
+					isNew: false,
+				}));
+			}
+
+			// Find the broader area for the selected cuisine
+			if (selectedCuisine) {
+				const cuisine = data.cuisines?.find((c: Cuisine) => c.name === selectedCuisine);
+				if (cuisine && cuisine.broader_areas && cuisine.broader_areas.length > 0) {
+					selectedArea = cuisine.broader_areas[0];
+				}
+			}
+
+			// Initialize privacy setting
+			isPublic = data.recipe.is_public ?? true;
 		}
 	});
 
@@ -85,7 +108,7 @@
 	}
 
 	// Validation helpers
-	const errors = $derived((form?.errors ?? {}) as Record<string, string>);
+	const errors = $derived({} as Record<string, string>);
 	const isFormValid = $derived(
 		recipeName.trim().length >= 3 &&
 			cookingTime !== null &&
@@ -149,7 +172,7 @@
 </script>
 
 <div class="container mx-auto max-w-4xl p-6">
-	<h1 class="mb-6 text-3xl font-bold">Create New Recipe</h1>
+	<h1 class="mb-6 text-3xl font-bold">Edit Recipe</h1>
 
 	{#if form?.message}
 		<div
@@ -161,7 +184,7 @@
 
 	<form
 		method="post"
-		action="?/create"
+		action="?/update"
 		use:enhance={handleSubmit}
 		class="space-y-6"
 	>
@@ -170,7 +193,7 @@
 			<h2 class="mb-4 text-xl font-semibold">Recipe Image</h2>
 			<RecipeImageUpload
 				{sb}
-				userId={data.session?.user?.id ?? ""}
+				userId={data.recipe?.user_id ?? ""}
 				bind:url={recipeImageUrl}
 			/>
 		</div>
@@ -438,7 +461,7 @@
 				disabled={loading || !isFormValid}
 				class="rounded bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				{loading ? "Creating Recipe..." : "Create Recipe"}
+				{loading ? "Updating Recipe..." : "Update Recipe"}
 			</button>
 			<a
 				href="/"
@@ -454,7 +477,7 @@
 {#if showIngredientModal}
 	<IngredientModal
 		bind:open={showIngredientModal}
-		existingIngredients={data.ingredients}
+		existingIngredients={data.existingIngredients}
 		onAdd={handleIngredientAdd}
 	/>
 {/if}

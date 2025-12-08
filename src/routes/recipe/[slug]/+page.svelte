@@ -1,9 +1,22 @@
 <script lang="ts">
   import { Chip } from "$lib";
   import Avatar from "$lib/components/Avatar.svelte";
-  export let data;
+  import ShareButton from "$lib/components/ShareButton.svelte";
+  import Icon from '@iconify/svelte';
+  import { getContext } from 'svelte';
+  import { goto } from '$app/navigation';
+  import type { Session } from '@supabase/supabase-js';
+  import { enhance } from '$app/forms';
 
-  const { recipe, error } = data;
+  let { data } = $props();
+
+  const recipe = $derived(data.recipe);
+  const error = $derived(data.error);
+  const ctxSession = getContext<Session | null>('session');
+
+  const isOwner = $derived(ctxSession?.user?.id === recipe?.user_id);
+
+  let deleting = $state(false);
 </script>
 
 <div class="mx-auto p-3 max-w-7xl space-y-4">
@@ -24,7 +37,56 @@
 
         <!-- Recipe Info -->
         <div class="lg:w-2/3 space-y-4">
-          <h1 class="font-bold text-3xl lg:text-4xl">{recipe.recipename}</h1>
+          <div class="flex justify-between items-start gap-3">
+            <h1 class="font-bold text-2xl sm:text-3xl lg:text-4xl flex-1 min-w-0">{recipe.recipename}</h1>
+
+            <div class="flex gap-2 flex-shrink-0">
+              <!-- Share button (always visible on mobile as icon-only) -->
+              <ShareButton
+                recipeId={recipe.id}
+                isPublic={recipe.is_public}
+                shareToken={recipe.share_token}
+              />
+
+              {#if isOwner}
+                <button
+                  type="button"
+                  onclick={() => {
+                    // eslint-disable-next-line svelte/no-navigation-without-resolve
+                    goto(`/recipe/${recipe.id}/edit`);
+                  }}
+                  class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-blue-700 active:scale-95"
+                  title="Edit this recipe"
+                >
+                  <Icon icon="mdi:pencil" height="20" />
+                  <span class="hidden sm:inline whitespace-nowrap">Edit</span>
+                </button>
+                <form method="POST" action="?/delete" class="contents" use:enhance={() => {
+                  if (!confirm('Are you sure you want to delete this recipe?')) {
+                    return async () => {};
+                  }
+                  deleting = true;
+                  return async ({ result }) => {
+                    if (result.type === 'redirect') {
+                      // eslint-disable-next-line svelte/no-navigation-without-resolve
+                      goto(result.location);
+                    }
+                    deleting = false;
+                  };
+                }}>
+                  <button
+                    type="submit"
+                    disabled={deleting}
+                    class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-red-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-red-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+                    title={deleting ? 'Deleting recipe...' : 'Delete this recipe'}
+                  >
+                    <Icon icon={deleting ? 'mdi:loading' : 'mdi:delete'} height="20" class={deleting ? 'animate-spin' : ''} />
+                    <span class="hidden sm:inline whitespace-nowrap">{deleting ? 'Deleting...' : 'Delete'}</span>
+                  </button>
+                </form>
+              {/if}
+            </div>
+          </div>
 
           <div class="flex flex-wrap gap-2">
             <Chip background="#0f766e" color="#fff">{recipe.cuisine}</Chip>
