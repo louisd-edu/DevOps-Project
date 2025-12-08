@@ -1,10 +1,35 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
     import { Chip } from "$lib";
-    import { onMount, tick } from 'svelte';
-    import { supabase } from '$lib/supabaseClient';
+    import { onMount, tick, setContext, getContext } from 'svelte';
+    import { supabase as supabaseFallback } from '$lib/supabaseClient';
+    import {prepareImageUrls} from "$lib/components/prepareImageUrls";
+    import { useFavoritesAndSaved } from '$lib/useFavoritesAndSaved';
+    import type { SupabaseClient, Session } from '@supabase/supabase-js';
+    import type { Recipe } from '$lib/types/Recipe';
+
+    // Type for raw recipe data from database query
+    type RawRecipeRow = {
+        id: string | number;
+        user_id: string;
+        recipename: string;
+        recipeimageurl: string | null;
+        cuisine: string | null;
+        cookingtime: number | null;
+        profiles: { id: string; username: string | null; displayname: string | null; avatar_url: string | null; level: number | null } | { id: string; username: string | null; displayname: string | null; avatar_url: string | null; level: number | null }[] | null;
+    };
 
     let { data } = $props();
+
+    // Use the Supabase client from layout context if available (shares auth session)
+    const ctxClient = getContext<SupabaseClient | undefined>('supabase');
+    const ctxSession = getContext<Session | null | undefined>('session');
+    const sb = ctxClient ?? supabaseFallback;
+
+    // Initialize reusable favorites/saved manager and provide contexts for children
+    const favSaved = useFavoritesAndSaved(sb);
+    setContext('favorites', favSaved.favoritesCtx);
+    setContext('saved', favSaved.savedCtx);
 
     // UI-only toggle to show all cuisines when "All areas" chip is active
     let showAllCuisines = $state(false);
@@ -35,7 +60,7 @@
     let pageSize = $state<number>(12);
 
     // Results state
-    let recipes = $state<any[]>(data.recipes ?? []);
+    let recipes = $state<Recipe[]>(data.recipes ?? []);
     let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -88,19 +113,6 @@
         return list.slice().sort((a, b) => a.name.localeCompare(b.name));
     })());
 
-    // Helper to map storage paths to public URLs
-    async function prepareImageUrls(path: string | null | undefined, bucket: string) {
-        if (!path) return null;
-        if (/^https?:\/\//.test(path)) return path;
-        try {
-            const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path);
-            return publicData?.publicUrl ?? null;
-        } catch (e) {
-            void e;
-            console.warn('Error getting public URL for', path, e);
-            return null;
-        }
-    }
 
     // Build cuisine list for current area
     function cuisinesForArea(area: string | null): string[] {
@@ -116,7 +128,7 @@
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        let rq = supabase
+        let rq = sb
             .from('recipes')
             .select(
                 `
@@ -126,10 +138,13 @@
                 recipeimageurl,
                 cuisine,
                 cookingtime,
-                profiles(id,username,avatar_url)
+                is_public,
+                share_token,
+                profiles(id,username,displayname,avatar_url,level)
                 `,
                 { count: 'exact' }
-            );
+            )
+            .eq('is_public', true); // Only show public recipes
 
         // Apply cuisine/area filter
         if (currentCuisine) {
@@ -174,19 +189,35 @@
 
         // Prepare image URLs
         const mapped = await Promise.all(
-            (rows ?? []).map(async (r) => {
+            (rows ?? []).map(async (r: RawRecipeRow) => {
                 const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
                 const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
                 const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
-                return { ...r, profileAvatar, recipeImage };
+                return {
+                    ...r,
+                    profiles: profile ?? { id: '', username: null, displayname: null, avatar_url: null, level: null, show_favorites_public: null, show_saved_public: null },
+                    profileAvatar,
+                    recipeImage,
+                    is_public: true, // Only public recipes are fetched
+                    share_token: null
+                };
             })
         );
-        recipes = mapped;
+        recipes = mapped as Recipe[];
         total = count ?? 0;
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
     }
 
-    // Kick initial client-side fetch to ensure consistency
-    onMount(() => { fetchRecipes(); });
+    // Kick initial client-side fetch to ensure consistency and hydrate favorites/saved
+    onMount(() => {
+        favSaved.setUserId(ctxSession?.user?.id ?? null);
+        const unsub = favSaved.syncAuth();
+        void fetchRecipes();
+        void favSaved.loadFavorites();
+        void favSaved.loadSaved();
+        return () => { unsub?.(); favSaved.destroy(); };
+    });
 
     // Refetch when any interactive state changes
     $effect(() => {
@@ -325,10 +356,10 @@
                 {/each}
             </div>
             {#if showLeftFade}
-                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
             {#if showRightFade}
-                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
         </div>
         {/if}
