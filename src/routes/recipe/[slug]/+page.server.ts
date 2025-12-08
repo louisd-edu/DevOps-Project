@@ -1,5 +1,6 @@
 // src/routes/[slug]/+page.server.ts
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
+import { fail, redirect } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
   const { supabase } = locals;
@@ -52,4 +53,49 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   return { recipe: data };
+};
+
+export const actions: Actions = {
+  delete: async ({ params, locals }) => {
+    const { supabase, safeGetSession } = locals;
+    const { session } = await safeGetSession();
+    const { slug } = params;
+
+    if (!session) {
+      return fail(401, { message: "Unauthorized" });
+    }
+
+    // Verify ownership
+    const { data: recipe } = await supabase
+      .from("recipes")
+      .select("user_id")
+      .eq("id", slug)
+      .single();
+
+    if (!recipe || recipe.user_id !== session.user.id) {
+      return fail(403, { message: "Forbidden - You don't own this recipe" });
+    }
+
+    // Get user's username from profile
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", session.user.id)
+      .single();
+
+    // Delete the recipe (this will cascade to recipe_ingredients due to foreign key)
+    const { error } = await supabase
+      .from("recipes")
+      .delete()
+      .eq("id", slug);
+
+    if (error) {
+      console.error("Error deleting recipe:", error);
+      return fail(500, { message: "Failed to delete recipe" });
+    }
+
+    // Redirect to user's profile (or home if username not found)
+    const redirectUrl = profile?.username ? `/user/${profile.username}` : '/';
+    throw redirect(303, redirectUrl);
+  },
 };
