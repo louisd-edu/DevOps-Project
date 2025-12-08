@@ -1,9 +1,20 @@
 <script lang="ts">
   import { Chip } from "$lib";
   import Avatar from "$lib/components/Avatar.svelte";
-  export let data;
+  import { getContext } from 'svelte';
+  import { goto } from '$app/navigation';
+  import type { Session } from '@supabase/supabase-js';
+  import { enhance } from '$app/forms';
 
-  const { recipe, error } = data;
+  let { data } = $props();
+
+  const recipe = $derived(data.recipe);
+  const error = $derived(data.error);
+  const ctxSession = getContext<Session | null>('session');
+
+  const isOwner = $derived(ctxSession?.user?.id === recipe?.user_id);
+
+  let deleting = $state(false);
 </script>
 
 <div class="mx-auto p-3 max-w-7xl space-y-4">
@@ -24,7 +35,41 @@
 
         <!-- Recipe Info -->
         <div class="lg:w-2/3 space-y-4">
-          <h1 class="font-bold text-3xl lg:text-4xl">{recipe.recipename}</h1>
+          <div class="flex justify-between items-start">
+            <h1 class="font-bold text-3xl lg:text-4xl">{recipe.recipename}</h1>
+
+            {#if isOwner}
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  onclick={() => goto(`/recipe/${recipe.id}/edit`)}
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Edit
+                </button>
+                <form method="POST" action="?/delete" use:enhance={() => {
+                  if (!confirm('Are you sure you want to delete this recipe?')) {
+                    return async ({ cancel }) => cancel();
+                  }
+                  deleting = true;
+                  return async ({ result }) => {
+                    if (result.type === 'redirect') {
+                      goto(result.location);
+                    }
+                    deleting = false;
+                  };
+                }}>
+                  <button
+                    type="submit"
+                    disabled={deleting}
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                  >
+                    {deleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                </form>
+              </div>
+            {/if}
+          </div>
 
           <div class="flex flex-wrap gap-2">
             <Chip background="#0f766e" color="#fff">{recipe.cuisine}</Chip>
