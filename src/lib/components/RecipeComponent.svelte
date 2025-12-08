@@ -7,6 +7,7 @@
     import { getContext, onDestroy } from 'svelte';
     import type { Writable } from 'svelte/store';
     import {prepareImageUrls} from "$lib/components/prepareImageUrls";
+    import { goto } from '$app/navigation';
 
     let { recipe } = $props<{ recipe: Recipe }>();
 
@@ -41,13 +42,28 @@
     const isFavorited = $derived(favSet.has(String(recipe.id)));
     const isSaved = $derived(savedSet.has(String(recipe.id)));
 
-    function handleToggleFavorite() { fav?.toggleFavorite(recipe.id); }
-    function handleToggleSaved() { saved?.toggleSaved(recipe.id); }
+    function handleToggleFavorite(e: MouseEvent) {
+        e.stopPropagation();
+        fav?.toggleFavorite(recipe.id);
+    }
+    function handleToggleSaved(e: MouseEvent) {
+        e.stopPropagation();
+        saved?.toggleSaved(recipe.id);
+    }
+
+    function goToRecipe() {
+        goto(`/recipe/${recipe.id}`);
+    }
+
+    function goToProfile(e: MouseEvent) {
+        e.stopPropagation();
+        goto(`/user/${recipe.profiles.username}`);
+    }
 
 
 </script>
 
-<div class="bg-gray-200 p-2 rounded-[28px] min-w-fit sm:rounded-[40px]">
+<div class="bg-gray-200 p-2 rounded-[28px] min-w-fit sm:rounded-[40px] cursor-pointer hover:bg-gray-300 transition-colors" onclick={goToRecipe}>
     <div
         class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2"
         style={image ? `background-image: url('${image}')` : undefined}
@@ -87,7 +103,7 @@
             </div>
 
         </div>
-        <div class="flex items-center gap-2 leading-tight">
+        <div class="flex items-center gap-2 leading-tight cursor-pointer hover:opacity-75 transition-opacity" onclick={goToProfile}>
             <Avatar url={recipe.profiles.avatar_url} size="h-12 w-12 sm:h-12 sm:w-12" />
             <div>
                 <div class="font-medium text-base sm:text-lg">{recipe.profiles.username}</div>
