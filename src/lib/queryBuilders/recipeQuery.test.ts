@@ -54,6 +54,7 @@ describe("buildRecipeQuery", () => {
   beforeEach(() => {
     mockQuery = {
       select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
       textSearch: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
