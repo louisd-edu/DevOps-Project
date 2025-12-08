@@ -94,7 +94,7 @@
   }
 </style>
 
-<body>
+
     <div class="container">
         <div class="upload-window">
             <h1>Upload New Recipe</h1>
@@ -107,4 +107,3 @@
             </form>
         </div>
     </div>
-</body>

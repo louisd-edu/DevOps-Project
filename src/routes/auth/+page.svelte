@@ -1,4 +1,5 @@
 <script>
+    import yumlogo from '$lib/assets/yumlogo.svg';
 </script>
 
 <style>
@@ -271,6 +272,7 @@
 
 <div class="auth-page">
     <div class="login-window">
+        <img src={yumlogo} alt="Yumlog logo" class="drop-shadow-2xl">
         <h1>Welcome to YumLog</h1>
         <div class="container">
             <div class="login-content">
