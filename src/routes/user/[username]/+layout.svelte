@@ -30,26 +30,42 @@
 </script>
 
 
-<div class="mt-5 mb-4 rounded-[136px] bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden shadow-lg">
+<div class="mt-5 mb-4 rounded-[136px] max-[540px]:rounded-full bg-neutral-200 dark:bg-neutral-800 relative overflow-hidden shadow-lg">
     <!-- Level progress background fill -->
     <div
-        class="absolute inset-0 bg-gradient-to-r from-primary-300/50 to-accent-300/50 dark:from-primary-600/40 dark:to-accent-500/40 rounded-[136px] transition-all duration-500"
+        class="absolute inset-0 bg-gradient-to-r from-primary-300/50 to-accent-300/50 dark:from-primary-600/40 dark:to-accent-500/40 rounded-[136px] max-[540px]:rounded-full transition-all duration-500"
         style={`width: ${levelPct}%`}
     ></div>
 
-    <div class="flex-row flex relative top-0 right-0 p-10">
-        <img src={avatar} alt={profile?.username} class="rounded-full w-48 h-48 ring-4 ring-white dark:ring-neutral-700 shadow-xl" />
-        <div class="flex flex-col justify-center ml-6">
-            <div class="font-bold text-4xl text-neutral-900 dark:text-neutral-50">{profile?.displayname}</div>
-            <div class="text-neutral-700 dark:text-neutral-300 text-lg">@{profile?.username}</div>
-            <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2 font-medium">Level {level} • {levelPct}% to next level</div>
-            <div>
+    <div class="flex-row flex relative top-0 right-0 p-10 max-[540px]:p-4">
+        <img src={avatar} alt={profile?.username} class="rounded-full w-48 h-48 max-[540px]:w-16 max-[540px]:h-16 ring-4 ring-white dark:ring-neutral-700 shadow-xl" />
+        <div class="flex flex-col justify-center ml-6 max-[540px]:ml-4">
+            <!-- Name section - shown inside on larger screens -->
+            <div class="max-[540px]:hidden">
+                <div class="font-bold text-4xl text-neutral-900 dark:text-neutral-50">{profile?.displayname}</div>
+                <div class="text-neutral-700 dark:text-neutral-300 text-lg">@{profile?.username}</div>
+            </div>
+            <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2 max-[540px]:mt-0 font-medium">Level {level} • {levelPct}% to next level</div>
+            <div class="max-[540px]:hidden">
                 <form method="POST" action="/account?/signout">
                     <button type="submit" class="underline text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors">Log out</button>
                 </form>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Name section - shown outside on small screens -->
+<div class="mb-3 max-[540px]:block hidden">
+    <div class="font-bold text-3xl text-neutral-900 dark:text-neutral-50">{profile?.displayname}</div>
+    <div class="text-neutral-700 dark:text-neutral-300 text-base">@{profile?.username}</div>
+</div>
+
+<!-- Logout button - shown outside on small screens -->
+<div class="mb-4 max-[540px]:block hidden">
+    <form method="POST" action="/account?/signout">
+        <button type="submit" class="underline text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors">Log out</button>
+    </form>
 </div>
 <div class="mt-5 mb-4 lg:px-10">
     <button
@@ -72,7 +88,7 @@
     </button>
 
     <div class="mt-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {@render children?.()}
         </div>
     </div>

@@ -66,7 +66,7 @@
 
 </script>
 
-<div class="bg-neutral-200 dark:bg-neutral-800 p-2 rounded-[28px] min-w-fit sm:rounded-[40px] cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors" onclick={goToRecipe} onkeydown={(e) => e.key === 'Enter' && goToRecipe()} role="button" tabindex="0">
+<div class="bg-neutral-200 dark:bg-neutral-800 p-2 rounded-[28px] sm:rounded-[40px] cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors" onclick={goToRecipe} onkeydown={(e) => e.key === 'Enter' && goToRecipe()} role="button" tabindex="0">
     <div
         class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2 relative bg-neutral-300 dark:bg-neutral-700"
         style={image ? `background-image: url('${image}')` : undefined}
@@ -97,7 +97,7 @@
     </div>
     <div class="p-2 sm:p-4 sm:pt-1 pt-1">
         <div class="mb-2">
-            <div class="font-bold text-xl sm:text-2xl text-nowrap leading-snug text-neutral-900 dark:text-neutral-50">{recipe.recipename}</div>
+            <div class="font-bold text-xl sm:text-2xl leading-snug text-neutral-900 dark:text-neutral-50 truncate">{recipe.recipename}</div>
 
             <div class="flex flex-wrap gap-2 mt-2">
                 <Chip>{recipe.cuisine}</Chip>
