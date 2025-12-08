@@ -66,9 +66,9 @@
 
 </script>
 
-<div class="bg-gray-200 p-2 rounded-[28px] min-w-fit sm:rounded-[40px] cursor-pointer hover:bg-gray-300 transition-colors" onclick={goToRecipe} onkeydown={(e) => e.key === 'Enter' && goToRecipe()} role="button" tabindex="0">
+<div class="bg-neutral-200 dark:bg-neutral-800 p-2 rounded-[28px] min-w-fit sm:rounded-[40px] cursor-pointer hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors" onclick={goToRecipe} onkeydown={(e) => e.key === 'Enter' && goToRecipe()} role="button" tabindex="0">
     <div
-        class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2 relative"
+        class="w-full rounded-[20px] sm:rounded-[32px] h-44 sm:h-52 md:h-56 bg-center bg-cover bg-no-repeat flex justify-end items-end p-3 gap-2 relative bg-neutral-300 dark:bg-neutral-700"
         style={image ? `background-image: url('${image}')` : undefined}
         role="img"
         aria-label="recipe image"
@@ -92,28 +92,24 @@
             onclick={handleToggleSaved}
             title={isSaved ? 'Remove from saved' : 'Save recipe'}
         >
-            <Icon icon={isSaved ? 'mdi:bookmark' : 'mdi:bookmark-outline'} height="20" style={isSaved ? 'color: var(--title-green)' : ''} />
+            <Icon icon={isSaved ? 'mdi:bookmark' : 'mdi:bookmark-outline'} height="20" style={isSaved ? 'color: var(--accent-green)' : ''} />
         </button>
     </div>
     <div class="p-2 sm:p-4 sm:pt-1 pt-1">
         <div class="mb-2">
-            <div class="font-bold text-xl sm:text-2xl text-nowrap leading-snug">{recipe.recipename}</div>
+            <div class="font-bold text-xl sm:text-2xl text-nowrap leading-snug text-neutral-900 dark:text-neutral-50">{recipe.recipename}</div>
 
-            <div class="text-gray-600 flex flex-wrap gap-2 mt-1">
-                <Chip>
-                    {recipe.cuisine}
-                </Chip>
-                <Chip>
-                    {recipe.cookingtime}min
-                </Chip>
+            <div class="flex flex-wrap gap-2 mt-2">
+                <Chip>{recipe.cuisine}</Chip>
+                <Chip>{recipe.cookingtime}min</Chip>
             </div>
 
         </div>
         <div class="flex items-center gap-2 leading-tight cursor-pointer hover:opacity-75 transition-opacity" onclick={goToProfile} onkeydown={(e) => e.key === 'Enter' && goToProfile(e)} role="button" tabindex="0">
             <Avatar url={recipe.profiles.avatar_url} size="h-12 w-12 sm:h-12 sm:w-12" />
             <div>
-                <div class="font-medium text-base sm:text-lg">{recipe.profiles.username}</div>
-                <div class="text-gray-500 text-sm">Beginner Cook</div>
+                <div class="font-medium text-base sm:text-lg text-neutral-900 dark:text-neutral-50">{recipe.profiles.username}</div>
+                <div class="text-neutral-500 dark:text-neutral-400 text-sm">Beginner Cook</div>
             </div>
         </div>
     </div>
@@ -121,8 +117,8 @@
 </div>
 
 <style>
-  /* Same green as title bar (#cdea86) */
-  :root { --title-green: #cdea86; }
+  /* Accent green color */
+  :root { --accent-green: #cdea86; }
 
   .btn-heart,
   .btn-save {
@@ -149,7 +145,7 @@
     40% { transform: translateY(-6px); }
     60% { transform: translateY(-2px); }
   }
-  .btn-save:hover { color: var(--title-green); border-color: rgba(205, 234, 134, 0.95); }
+  .btn-save:hover { color: var(--accent-green); border-color: rgba(205, 234, 134, 0.95); }
   :global(.btn-save:hover svg) {
     filter: drop-shadow(0 0 8px rgba(205, 234, 134, 0.95));
     animation: jump 420ms ease-out;

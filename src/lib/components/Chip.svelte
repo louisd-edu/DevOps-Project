@@ -1,17 +1,17 @@
 <script lang="ts">
   export let label: string = '';
-  export let color: string = '#333'; // text color
-  export let background: string = '#e0e0e0'; // background color
+  export let color: string = ''; // text color (optional)
+  export let background: string = ''; // background color (optional)
   export let ariaLabel: string = '';
 
   // Compose style in script so props are used and recognized by analyzer
-  $: styleAttr = `color: ${color}; background: ${background};`;
+  $: styleAttr = color || background ? `${color ? `color: ${color};` : ''} ${background ? `background: ${background};` : ''}` : undefined;
 </script>
 
 <button
   type="button"
-  class="rounded-full px-3 py-1 text-sm font-medium whitespace-nowrap items-center gap-1 border border-transparent hover:opacity-90 transition"
-  style={styleAttr}
+  class="inline-flex items-center rounded-lg text-sm font-medium whitespace-nowrap bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 hover:opacity-80 transition-opacity"
+  style={`padding: 0.5em 1em; ${styleAttr || ''}`}
   aria-label={ariaLabel}
   {...$$restProps}
 >
