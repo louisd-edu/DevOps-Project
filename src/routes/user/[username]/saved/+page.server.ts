@@ -29,7 +29,12 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     };
   }
 
-  const savedrecipes = await fetchUserRecipesBy("saved", supabase, profile.id);
+  const savedrecipes = await fetchUserRecipesBy(
+    "saved",
+    supabase,
+    profile.id,
+    isOwner, // Only include private recipes if viewing own list
+  );
 
   return {
     savedrecipes,
