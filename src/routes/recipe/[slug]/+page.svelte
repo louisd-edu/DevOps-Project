@@ -6,105 +6,105 @@
   const { recipe, error } = data;
 </script>
 
-{#if error}
-  <p class="text-red-500">Error: {error}</p>
-{:else if recipe}
-  <div class="bg-gray-200 p-2 rounded-[56px]">
-    <div class="flex flex-row items-start space-x-4">
-      <img
-        src={recipe.recipeImageUrl}
-        alt="recipeimage"
-        class="w-1/4 h-1/4 object-cover rounded-[48px]"
-      />
-      <div class="flex flex-col space-y-2 flex-1 pt-1 pl-5">
-        <div class="font-bold text-5xl text-nowrap">{recipe.recipename}</div>
-        <div class="text-gray-600 flex space-x-2 pt-2">
-          <Chip>{recipe.cuisine}</Chip>
-          <Chip>{recipe.cookingtime}min</Chip>
-
+<div class="mx-auto p-3 max-w-7xl space-y-4">
+  {#if error}
+    <p class="text-red-500 p-4">Error: {error}</p>
+  {:else if recipe}
+    <!-- Recipe Header -->
+    <div class="bg-white border border-slate-300 rounded-lg p-6 space-y-4">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Recipe Image -->
+        <div class="lg:w-1/3">
+          <img
+            src={recipe.recipeImageUrl}
+            alt={recipe.recipename}
+            class="w-full h-64 lg:h-full object-cover rounded-lg"
+          />
         </div>
-        <div class="flex items-center space-x-2 leading-tight pt-3">
-          <Avatar url={recipe.profiles?.avatar_url} size="h-14 w-14" />
-          <div>
-            <div class="font-medium">{recipe.profiles?.username}</div>
-            <div class="text-gray-500">Beginner Cook</div>
+
+        <!-- Recipe Info -->
+        <div class="lg:w-2/3 space-y-4">
+          <h1 class="font-bold text-3xl lg:text-4xl">{recipe.recipename}</h1>
+
+          <div class="flex flex-wrap gap-2">
+            <Chip background="#0f766e" color="#fff">{recipe.cuisine}</Chip>
+            <Chip background="#e5e7eb" color="#111827">{recipe.cookingtime} min</Chip>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <Avatar url={recipe.profiles?.avatar_url} size="h-12 w-12" />
+            <div>
+              <div class="font-medium text-lg">{recipe.profiles?.username}</div>
+              <div class="text-slate-500 text-sm">Recipe Creator</div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="pt-1 flex items-center flex-col">
-        <div class="font-bold text-xl mb-2">Ingredients:</div>
-        <table
-          class="min-w-full border-collapse border border-gray-300 rounded-[48px] overflow-hidden"
-        >
+    </div>
+
+    <!-- Ingredients Section -->
+    <div class="bg-white border border-slate-300 rounded-lg p-6">
+      <h2 class="font-bold text-2xl mb-4">Ingredients</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
           <thead>
-            <tr class="bg-gray-100">
-              <th class="border border-gray-300 px-4 py-2 text-left"
-                >Quantity</th
-              >
-              <th class="border border-gray-300 px-4 py-2 text-left"
-                >Ingredient</th
-              >
-              <th class="border border-gray-300 px-4 py-2 text-left"
-                >Nutrition</th
-              >
+            <tr class="border-b border-slate-300">
+              <th class="text-left px-4 py-3 font-semibold">Quantity</th>
+              <th class="text-left px-4 py-3 font-semibold">Ingredient</th>
+              <th class="text-left px-4 py-3 font-semibold">Nutrition</th>
             </tr>
           </thead>
           <tbody>
-            {#each recipe.recipe_ingredients as recipeIngredient}
-              <tr class="bg-[#e0e0e0]">
-                <td class="border border-gray-300 px-4 py-2">
-                  {recipeIngredient.quantity || 'N/A'} 
+            {#each recipe.recipe_ingredients as recipeIngredient, i}
+              <tr class="border-b border-slate-200 hover:bg-slate-50">
+                <td class="px-4 py-3">
+                  {recipeIngredient.quantity || 'N/A'}
                   {#if recipeIngredient.type && recipeIngredient.type.toLowerCase() !== 'none'}
                     {recipeIngredient.type}
                   {/if}
                 </td>
-                <td class="border border-gray-300 px-4 py-2">
+                <td class="px-4 py-3">
                   {recipeIngredient.ingredient?.name || recipeIngredient.ingredientid || 'N/A'}
                 </td>
-                <td class="border border-gray-300 px-4 py-2">
-                  {recipeIngredient.ingredients?.calories ?? ' '}kcal - {recipeIngredient.ingredients?.protein ?? ''}g protein
+                <td class="px-4 py-3 text-slate-600">
+                  {recipeIngredient.ingredients?.calories ?? '-'}kcal • {recipeIngredient.ingredients?.protein ?? '-'}g protein
                 </td>
               </tr>
             {/each}
           </tbody>
-          <tfoot>
-            <tr class="bg-gray-100">
-              <th class="border border-gray-300 px-4 py-2 text-left"
-                >&#8192;</th
-              >
-              <th class="border border-gray-300 px-4 py-2 text-left"
-                >&#8192;</th
-              >
-              <th class="border border-gray-300 px-4 py-2 text-left"
-                >&#8192;</th
-              >
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>
 
-    <div class="flex flex-row justify-center items-center pt-5 pb-5">
-      <div class="mt-4 w-full text-center">
-        <div class="font-bold text-xl">Method:</div>
-        {#if recipe.method && recipe.method.length > 0}
+    <!-- Method Section -->
+    <div class="bg-white border border-slate-300 rounded-lg p-6">
+      <h2 class="font-bold text-2xl mb-4">Method</h2>
+      {#if recipe.method && recipe.method.length > 0}
+        <div class="space-y-4">
           {#each recipe.method as step, index}
-            <div class="mt-2">
-              <div class="font-semibold">Step {index + 1}:</div>
-              <div>{step}</div>
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-semibold">
+                {index + 1}
+              </div>
+              <div class="flex-1 pt-1">
+                <p class="text-slate-700">{step}</p>
+              </div>
             </div>
           {/each}
-        {:else}
-          <div class="text-gray-600 italic mt-2">No method steps provided.</div>
-        {/if}
-      </div>
+        </div>
+      {:else}
+        <p class="text-slate-500 italic">No method steps provided.</p>
+      {/if}
     </div>
-  </div>
-{/if}
 
-<!-- todo: implement comments section -->
-<div class="bg-gray-200 p-2 rounded-[56px] mt-5">
-  <div class="font-bold text-xl mb-2">Comments:</div>
-  <input type="text" placeholder="Add a comment..." class="w-full p-2 rounded-[32px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-  <div class=""></div>
+    <!-- Comments Section -->
+    <div class="bg-white border border-slate-300 rounded-lg p-6">
+      <h2 class="font-bold text-2xl mb-4">Comments</h2>
+      <input
+        type="text"
+        placeholder="Add a comment..."
+        class="w-full px-3 py-2 rounded border border-slate-300 focus:outline-none focus:ring focus:ring-slate-200"
+      />
+    </div>
+  {/if}
 </div>
