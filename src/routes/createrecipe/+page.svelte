@@ -22,6 +22,7 @@
 	let recipeImageUrl = $state<string | undefined>(undefined);
 	let methodSteps = $state<string[]>([""]);
 	let ingredients = $state<RecipeIngredient[]>([]);
+	let isPublic = $state(true);
 
 	// UI state
 	let loading = $state(false);
@@ -217,6 +218,31 @@
 					<p class="mt-1 text-sm text-red-500">{errors.cookingTime}</p>
 				{/if}
 			</div>
+
+			<div>
+				<label class="mb-1 block font-medium">Privacy Setting</label>
+				<div class="flex items-center gap-3 p-3 border border-slate-300 rounded bg-slate-50">
+					<input
+						id="isPublic"
+						type="checkbox"
+						bind:checked={isPublic}
+						class="h-5 w-5"
+					/>
+					<label for="isPublic" class="cursor-pointer">
+						<span class="font-medium">Make this recipe public</span>
+						<span class="block text-slate-600 text-sm">
+							{#if isPublic}
+								Anyone can discover and view this recipe
+							{:else}
+								Only people with a share link can view this recipe
+							{/if}
+						</span>
+					</label>
+				</div>
+			</div>
+
+			<!-- Hidden field for form submission -->
+			<input type="hidden" name="isPublic" value={isPublic} />
 		</div>
 
 		<!-- Cuisine Selection -->

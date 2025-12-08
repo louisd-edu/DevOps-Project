@@ -2,6 +2,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect, isRedirect } from "@sveltejs/kit";
 import type { Ingredient } from "$lib/types/Ingredient";
 import type { Cuisine } from "$lib/types/Cuisine";
+import { generateShareToken } from "$lib/server/generateShareToken";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const { supabase, safeGetSession } = locals;
@@ -81,17 +82,29 @@ export const actions: Actions = {
 			const recipeImageUrl = formData.get("recipeImageUrl") as string;
 			const methodStepsRaw = formData.get("methodSteps") as string;
 			const ingredientsRaw = formData.get("ingredients") as string;
+			const isPublic = formData.get("isPublic") === "true";
 
-			// Verify ownership
+			// Verify ownership and get current privacy settings
 			const { data: recipe } = await supabase
 				.from("recipes")
-				.select("user_id")
+				.select("user_id, is_public, share_token")
 				.eq("id", slug)
 				.single();
 
 			if (!recipe || recipe.user_id !== session.user.id) {
 				return fail(403, { message: "Forbidden" });
 			}
+
+			// Handle token based on privacy transition
+			let shareToken = recipe.share_token;
+			if (!isPublic && recipe.is_public) {
+				// Going private: generate new token
+				shareToken = generateShareToken();
+			} else if (isPublic) {
+				// Going public: clear token
+				shareToken = null;
+			}
+			// If staying private, keep existing token
 
 			// Parse JSON fields
 			const methodSteps = JSON.parse(methodStepsRaw);
@@ -120,6 +133,8 @@ export const actions: Actions = {
 					method: methodSteps.filter((s: string) => s.trim()),
 					total_calories: totalCalories,
 					total_protein: totalProtein,
+					is_public: isPublic,
+					share_token: shareToken,
 				})
 				.eq("id", slug);
 
