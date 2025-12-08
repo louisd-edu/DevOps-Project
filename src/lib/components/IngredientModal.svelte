@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Ingredient } from "$lib/types/Ingredient";
+	import type { Ingredient, MeasurementUnit } from "$lib/types/Ingredient";
 	import type { RecipeIngredient } from "$lib/types/RecipeIngredient";
 
 	interface Props {
@@ -17,17 +17,19 @@
 
 	// Quantity/unit state
 	let quantity = $state<number>(1);
-	let unit = $state("g");
+	let unit = $state<MeasurementUnit>("g");
 
 	// New ingredient state
 	let newIngredientName = $state("");
 	let newCalories = $state<number>(0);
 	let newProtein = $state<number>(0);
 
-	// Available units
-	const UNITS = [
+	// Available units (matches database enum)
+	const UNITS: MeasurementUnit[] = [
 		"g",
+		"kg",
 		"ml",
+		"l",
 		"cup",
 		"tbsp",
 		"tsp",
@@ -36,6 +38,10 @@
 		"piece",
 		"clove",
 		"pinch",
+		"handful",
+		"slice",
+		"can",
+		"bunch",
 	];
 
 	// Filtered search results
@@ -292,6 +298,7 @@
 									type="number"
 									bind:value={newCalories}
 									min="0"
+									step="0.1"
 									placeholder="165"
 									class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
 								/>

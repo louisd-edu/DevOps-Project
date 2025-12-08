@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="Refactor recipe page to utilize context for Supabase client and session management">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/components/IngredientModal.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/components/IngredientModal.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/components/RecipeImageUpload.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/components/RecipeImageUpload.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/types/Ingredient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/types/Ingredient.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/types/RecipeIngredient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/types/RecipeIngredient.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routes/createrecipe/+page.server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/createrecipe/+page.server.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/routes/createrecipe/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/createrecipe/+page.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/supabase.schema" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

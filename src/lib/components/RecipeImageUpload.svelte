@@ -5,10 +5,11 @@
 	interface Props {
 		url?: string;
 		sb: SupabaseClient;
+		userId: string;
 		onupload?: () => void;
 	}
 
-	let { url = $bindable(), sb, onupload }: Props = $props();
+	let { url = $bindable(), sb, userId, onupload }: Props = $props();
 
 	let recipeImageUrl: string | null = $state(null);
 	let uploading = $state(false);
@@ -57,7 +58,8 @@
 			const file = croppedFile;
 
 			const fileExt = file.name.split(".").pop();
-			const filePath = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+			const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+			const filePath = `${userId}/${fileName}`;
 
 			const { error } = await sb.storage
 				.from("recipeimages")
