@@ -1,8 +1,10 @@
 <script lang="ts">
     import RecipeComponent from "$lib/components/RecipeComponent.svelte";
+    import RecipeInteractionProvider from "$lib/components/RecipeInteractionProvider.svelte";
     import { Chip } from "$lib";
     import { onMount, tick } from 'svelte';
-    import { supabase } from '$lib/supabaseClient';
+    import { supabase } from "$lib/supabaseClient";
+    import { buildRecipeQuery, transformRecipeResults } from "$lib/queryBuilders/recipeQuery";
 
     let { data } = $props();
 
@@ -35,7 +37,7 @@
     let pageSize = $state<number>(12);
 
     // Results state
-    let recipes = $state<any[]>(data.recipes ?? []);
+    let recipes = $state(data.recipes ?? []);
     let total = $state<number>(data.query?.total ?? (data.recipes?.length ?? 0));
     const totalPages = $derived<number>(Math.max(1, Math.ceil(total / pageSize)));
 
@@ -88,19 +90,6 @@
         return list.slice().sort((a, b) => a.name.localeCompare(b.name));
     })());
 
-    // Helper to map storage paths to public URLs
-    async function prepareImageUrls(path: string | null | undefined, bucket: string) {
-        if (!path) return null;
-        if (/^https?:\/\//.test(path)) return path;
-        try {
-            const { data: publicData } = await supabase.storage.from(bucket).getPublicUrl(path);
-            return publicData?.publicUrl ?? null;
-        } catch (e) {
-            void e;
-            console.warn('Error getting public URL for', path, e);
-            return null;
-        }
-    }
 
     // Build cuisine list for current area
     function cuisinesForArea(area: string | null): string[] {
@@ -116,53 +105,25 @@
         if (typeof window === 'undefined') return; // avoid SSR
         const id = ++fetchId;
 
-        let rq = supabase
-            .from('recipes')
-            .select(
-                `
-                id,
-                user_id,
-                recipename,
-                recipeimageurl,
-                cuisine,
-                cookingtime,
-                profiles(id,username,avatar_url)
-                `,
-                { count: 'exact' }
-            );
-
-        // Apply cuisine/area filter
+        // Determine cuisines to filter by
+        let cuisineFilter: string[] = [];
         if (currentCuisine) {
-            rq = rq.eq('cuisine', currentCuisine);
+            cuisineFilter = [currentCuisine];
         } else if (currentArea) {
-            const names = cuisinesForArea(currentArea);
-            if (names.length) rq = rq.in('cuisine', names);
-            else rq = rq.eq('cuisine', '__none__');
+            cuisineFilter = cuisinesForArea(currentArea);
         }
 
-        // Full-text search with prefix matching
-        const q = currentQ.trim().toLowerCase();
-        if (q) {
-            const tokens = q.match(/[a-z0-9]+/g) ?? [];
-            if (tokens.length) {
-                const tsQuery = tokens.map((t) => `${t}:*`).join(' & ');
-                rq = rq.filter('search_tsv', 'fts', tsQuery);
-            }
-        }
+        // Build query using shared query builder
+        const rq = buildRecipeQuery(supabase, {
+            cuisines: cuisineFilter,
+            searchText: currentQ,
+            sortBy: currentSortBy,
+            sortDir: currentSortDir,
+            page: currentPage,
+            pageSize: pageSize,
+        });
 
-        // Sorting
-        if (currentSortBy === 'name') {
-            rq = rq.order('recipename', { ascending: currentSortDir === 'asc' });
-        } else {
-            rq = rq.order('cookingtime', { ascending: currentSortDir === 'asc', nullsFirst: false });
-        }
-
-        // Pagination
-        const from = (currentPage - 1) * pageSize;
-        const to = from + pageSize - 1;
-        rq = rq.range(from, to);
-
-        const { data: rows, error, count } = await rq;
+        const { data: row, error, count } = await rq;
         if (id !== fetchId) return; // out-of-date response
 
         if (error) {
@@ -172,21 +133,14 @@
             return;
         }
 
-        // Prepare image URLs
-        const mapped = await Promise.all(
-            (rows ?? []).map(async (r) => {
-                const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
-                const profileAvatar = await prepareImageUrls(profile?.avatar_url, 'avatars');
-                const recipeImage = await prepareImageUrls(r.recipeimageurl, 'recipeimages');
-                return { ...r, profileAvatar, recipeImage };
-            })
-        );
-        recipes = mapped;
+        recipes = row ? transformRecipeResults(row) : [];
         total = count ?? 0;
     }
 
-    // Kick initial client-side fetch to ensure consistency
-    onMount(() => { fetchRecipes(); });
+    // Kick initial client-side fetch
+    onMount(() => {
+        void fetchRecipes();
+    });
 
     // Refetch when any interactive state changes
     $effect(() => {
@@ -274,6 +228,7 @@
     });
 </script>
 
+<RecipeInteractionProvider supabase={supabase} userId={data.user?.id ?? null}>
 <!-- Controls -->
 <div class=" mx-auto p-3 space-y-4">
     <div class="flex flex-col gap-2">
@@ -325,10 +280,10 @@
                 {/each}
             </div>
             {#if showLeftFade}
-                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute left-0 top-0 h-full w-10" style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
             {#if showRightFade}
-                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));"></div>
+                <div class="pointer-events-none absolute right-0 top-0 h-full w-10" style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0);"></div>
             {/if}
         </div>
         {/if}
@@ -369,3 +324,4 @@
         </button>
     </div>
 </div>
+</RecipeInteractionProvider>
