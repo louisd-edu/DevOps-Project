@@ -51,7 +51,10 @@
               {#if isOwner}
                 <button
                   type="button"
-                  onclick={() => goto(`/recipe/${recipe.id}/edit`)}
+                  onclick={() => {
+                    // eslint-disable-next-line svelte/no-navigation-without-resolve
+                    goto(`/recipe/${recipe.id}/edit`);
+                  }}
                   class="flex items-center justify-center gap-2 px-3 py-2 min-w-[44px] h-[44px] bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md hover:bg-blue-700 active:scale-95"
                   title="Edit this recipe"
                 >
@@ -60,11 +63,12 @@
                 </button>
                 <form method="POST" action="?/delete" class="contents" use:enhance={() => {
                   if (!confirm('Are you sure you want to delete this recipe?')) {
-                    return async ({ cancel }) => cancel();
+                    return async () => {};
                   }
                   deleting = true;
                   return async ({ result }) => {
                     if (result.type === 'redirect') {
+                      // eslint-disable-next-line svelte/no-navigation-without-resolve
                       goto(result.location);
                     }
                     deleting = false;

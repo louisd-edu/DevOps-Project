@@ -85,7 +85,7 @@
 	}
 
 	// Validation helpers
-	const errors = $derived(form?.errors ?? {});
+	const errors = $derived((form?.errors ?? {}) as Record<string, string>);
 	const isFormValid = $derived(
 		recipeName.trim().length >= 3 &&
 			cookingTime !== null &&
@@ -106,7 +106,7 @@
 	const cuisinesForSelectedArea = $derived(
 		selectedArea
 			? (data.cuisines ?? [])
-					.filter((c) => (c.broader_areas ?? []).includes(selectedArea))
+					.filter((c) => (c.broader_areas ?? []).includes(selectedArea as string))
 					.sort((a, b) => a.name.localeCompare(b.name))
 			: []
 	);
@@ -220,7 +220,6 @@
 			</div>
 
 			<div>
-				<label class="mb-1 block font-medium">Privacy Setting</label>
 				<div class="flex items-center gap-3 p-3 border border-slate-300 rounded bg-slate-50">
 					<input
 						id="isPublic"
@@ -228,7 +227,7 @@
 						bind:checked={isPublic}
 						class="h-5 w-5"
 					/>
-					<label for="isPublic" class="cursor-pointer">
+					<label for="isPublic" class="cursor-pointer mb-0">
 						<span class="font-medium">Make this recipe public</span>
 						<span class="block text-slate-600 text-sm">
 							{#if isPublic}
