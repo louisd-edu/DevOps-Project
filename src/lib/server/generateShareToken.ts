@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from "crypto";
 
 /**
  * Generates a unique share token for private recipe access
@@ -6,5 +6,5 @@ import { randomUUID } from 'crypto';
  * @returns A UUID v4 string
  */
 export function generateShareToken(): string {
-	return randomUUID();
+  return randomUUID();
 }
