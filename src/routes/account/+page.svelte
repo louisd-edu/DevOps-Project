@@ -61,15 +61,13 @@
 	}
 </script>
 
-<div class="form-widget">
-	<form
-		class="form-widget"
-		method="post"
-		action="?/update"
-		use:enhance={handleSubmit}
-		bind:this={profileForm}
-	>
-		<div class="form-widget">
+<div class="container mx-auto max-w-4xl p-6">
+	<h1 class="mb-6 text-3xl font-bold text-neutral-900 dark:text-neutral-50">Account Settings</h1>
+
+	<div class="space-y-6">
+		<!-- Avatar Upload Card -->
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg">
+			<h2 class="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">Profile Picture</h2>
 			<AvatarUpload
 				{supabase}
 				bind:url={avatarUrl}
@@ -80,106 +78,127 @@
 			/>
 		</div>
 
-		<div>
-			<label for="email">Email</label>
-			<input id="email" type="text" value={session.user.email} disabled />
-		</div>
+		<!-- Profile Information Card -->
+		<form
+			method="post"
+			action="?/update"
+			use:enhance={handleSubmit}
+			bind:this={profileForm}
+			class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg space-y-4"
+		>
+			<h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Profile Information</h2>
 
-		<div>
-			<label for="fullName">Full Name</label>
-			<input id="fullName" name="fullName" type="text" value={form?.fullName ?? fullName} />
-		</div>
+			<div>
+				<label for="email" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50">Email</label>
+				<input
+					id="email"
+					type="text"
+					value={session.user.email}
+					disabled
+					class="w-full rounded bg-neutral-300 dark:bg-neutral-700 border border-neutral-400 dark:border-neutral-600 px-3 py-2 text-neutral-600 dark:text-neutral-400 cursor-not-allowed"
+				/>
+			</div>
 
-		<div>
-			<label for="username">Username</label>
-			<input
-				id="username"
-				name="username"
-				type="text"
-				bind:value={username}
-				autocomplete="username"
-				autocapitalize="none"
-				spellcheck={false}
-				oninput={handleUsernameInput}
-			/>
-		</div>
+			<div>
+				<label for="fullName" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50">Full Name</label>
+				<input
+					id="fullName"
+					name="fullName"
+					type="text"
+					value={form?.fullName ?? fullName}
+					class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
+				/>
+			</div>
 
-		<div>
-			<label for="website">Website</label>
-			<input id="website" name="website" type="url" value={form?.website ?? website} />
-		</div>
+			<div>
+				<label for="username" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50">Username</label>
+				<input
+					id="username"
+					name="username"
+					type="text"
+					bind:value={username}
+					autocomplete="username"
+					autocapitalize="none"
+					spellcheck={false}
+					oninput={handleUsernameInput}
+					class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
+				/>
+			</div>
 
-		<div class="privacy-settings">
-			<h3>Privacy Settings</h3>
-			<div class="privacy-option">
-				<label for="showFavoritesPublic">
+			<div>
+				<label for="website" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50">Website</label>
+				<input
+					id="website"
+					name="website"
+					type="url"
+					value={form?.website ?? website}
+					class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
+				/>
+			</div>
+
+			<div class="pt-4">
+				<button
+					type="submit"
+					disabled={loading}
+					class="w-full rounded bg-primary-500 dark:bg-primary-600 px-6 py-3 font-semibold text-white hover:bg-primary-600 dark:hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg transition-colors"
+				>
+					{loading ? 'Updating...' : 'Update Profile'}
+				</button>
+			</div>
+		</form>
+
+		<!-- Privacy Settings Card -->
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg space-y-4">
+			<h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Privacy Settings</h2>
+
+			<div class="space-y-3">
+				<div class="flex items-center gap-3 p-3 border border-neutral-300 dark:border-neutral-600 rounded bg-neutral-200 dark:bg-neutral-700">
 					<input
 						id="showFavoritesPublic"
 						name="showFavoritesPublic"
 						type="checkbox"
 						bind:checked={showFavoritesPublic}
+						class="h-5 w-5"
+						onchange={() => profileForm.requestSubmit()}
 					/>
-					Make my liked recipes public
-				</label>
-			</div>
-			<div class="privacy-option">
-				<label for="showSavedPublic">
+					<label for="showFavoritesPublic" class="cursor-pointer flex-1">
+						<span class="font-medium text-neutral-900 dark:text-neutral-50">Make my liked recipes public</span>
+						<span class="block text-neutral-600 dark:text-neutral-400 text-sm">
+							Allow others to see recipes you've liked
+						</span>
+					</label>
+				</div>
+
+				<div class="flex items-center gap-3 p-3 border border-neutral-300 dark:border-neutral-600 rounded bg-neutral-200 dark:bg-neutral-700">
 					<input
 						id="showSavedPublic"
 						name="showSavedPublic"
 						type="checkbox"
 						bind:checked={showSavedPublic}
+						class="h-5 w-5"
+						onchange={() => profileForm.requestSubmit()}
 					/>
-					Make my saved recipes public
-				</label>
+					<label for="showSavedPublic" class="cursor-pointer flex-1">
+						<span class="font-medium text-neutral-900 dark:text-neutral-50">Make my saved recipes public</span>
+						<span class="block text-neutral-600 dark:text-neutral-400 text-sm">
+							Allow others to see recipes you've saved
+						</span>
+					</label>
+				</div>
 			</div>
 		</div>
 
-		<div>
-			<input
+		<!-- Sign Out Card -->
+		<form method="post" action="?/signout" use:enhance={handleSignOut} class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg">
+			<h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-4">Account Actions</h2>
+			<button
 				type="submit"
-				class="button block primary"
-				value={loading ? 'Loading...' : 'Update'}
 				disabled={loading}
-			/>
-		</div>
-	</form>
-
-	<form method="post" action="?/signout" use:enhance={handleSignOut}>
-		<div>
-			<button class="button block" disabled={loading}>Sign Out</button>
-		</div>
-	</form>
+				class="w-full rounded bg-red-600 dark:bg-red-700 px-6 py-3 font-semibold text-white hover:bg-red-700 dark:hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg transition-colors"
+			>
+				Sign Out
+			</button>
+		</form>
+	</div>
 </div>
 
-<style>
-	/* Removed inline error UI since we enforce silently */
-	.privacy-settings {
-		margin-top: 1.5rem;
-		padding-top: 1.5rem;
-		border-top: 1px solid #e5e7eb;
-	}
-
-	.privacy-settings h3 {
-		font-size: 1.125rem;
-		font-weight: 600;
-		margin-bottom: 1rem;
-	}
-
-	.privacy-option {
-		margin-bottom: 0.75rem;
-	}
-
-	.privacy-option label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		cursor: pointer;
-	}
-
-	.privacy-option input[type="checkbox"] {
-		width: 1.25rem;
-		height: 1.25rem;
-		cursor: pointer;
-	}
-</style>

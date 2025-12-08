@@ -39,13 +39,13 @@
 </script>
 
 <nav class="w-full mt-3">
-  <div class="flex items-center justify-between bg-[#cdea86] rounded-full md:px-3 px-2 md:pl-0 pl-5 py-2  md:py-3 gap-2">
+  <div class="flex items-center justify-between bg-accent-300 dark:bg-accent-400 rounded-full md:px-3 px-2 md:pl-0 pl-5 py-2 md:py-3 gap-2 transition-colors">
     <!-- Left spacer (optional actions) -->
     <div class="flex-1 min-w-0"></div>
 
     <!-- Center logo -->
     <div class="shrink-0 order-first md:order-none flex items-center">
-        <button onclick={goHome} class="flex items-center">
+        <button onclick={goHome} class="flex items-center transition-transform hover:scale-105">
       <img src={yumlogo} class="h-8 md:h-10" alt="logo" />
         </button>
     </div>
@@ -55,19 +55,21 @@
       {#if profile}
           <div class="flex flex-col max-w-[60vw] sm:max-w-[40vw] mr-3 min-w-0">
 
-            <span class="text-base md:text-lg font-bold truncate min-w-0">{profile.username ?? 'User'}</span>
+            <span class="text-base md:text-lg font-bold truncate min-w-0 text-neutral-900 dark:text-neutral-900">{profile.username ?? 'User'}</span>
             <div class="flex items-center gap-2 shrink-0">
-              <div class="h-2 w-24 md:w-32 rounded-full bg-gray-300 overflow-hidden">
-                <div class="h-full bg-gray-600" style={`width: ${levelPct}%`}></div>
+              <div class="h-2 w-24 md:w-32 rounded-full bg-neutral-900/20 dark:bg-neutral-900/30 overflow-hidden">
+                <div class="h-full bg-primary-600 dark:bg-primary-500 transition-all" style={`width: ${levelPct}%`}></div>
               </div>
-              <span class="text-xs text-gray-600">{level}</span>
+              <span class="text-xs text-neutral-900/70 dark:text-neutral-900/80 font-medium">{level}</span>
             </div>
           </div>
         {#if avatarSrc}
-            <button class="" onclick={goUser}><img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover" /></button>
+            <button class="transition-transform hover:scale-105" onclick={goUser}>
+              <img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ring-neutral-900/10" />
+            </button>
         {/if}
       {:else}
-        <button type="button" class="text-sm md:text-base text-slate-700 hover:text-slate-900" onclick={goAuth}>Sign in</button>
+        <button type="button" class="text-sm md:text-base text-neutral-900 hover:text-neutral-950 dark:text-neutral-900 dark:hover:text-neutral-950 font-medium transition-colors" onclick={goAuth}>Sign in</button>
       {/if}
     </div>
   </div>
