@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
   const { slug } = params;
 
   // Get token from query params for private recipe access
-  const token = url.searchParams.get('token');
+  const token = url.searchParams.get("token");
 
   const { data, error } = await supabase
     .from("recipes")
@@ -44,7 +44,7 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
       // Unauthorized: no token or invalid token
       return {
         error: "This recipe is private. You need a valid link to view it.",
-        unauthorized: true
+        unauthorized: true,
       };
     }
   }
@@ -107,10 +107,7 @@ export const actions: Actions = {
       .single();
 
     // Delete the recipe (this will cascade to recipe_ingredients due to foreign key)
-    const { error } = await supabase
-      .from("recipes")
-      .delete()
-      .eq("id", slug);
+    const { error } = await supabase.from("recipes").delete().eq("id", slug);
 
     if (error) {
       console.error("Error deleting recipe:", error);
@@ -118,7 +115,7 @@ export const actions: Actions = {
     }
 
     // Redirect to user's profile (or home if username not found)
-    const redirectUrl = profile?.username ? `/user/${profile.username}` : '/';
+    const redirectUrl = profile?.username ? `/user/${profile.username}` : "/";
     throw redirect(303, redirectUrl);
   },
 };
