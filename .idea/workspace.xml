@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)">
+    <list default="true" id="64b08bed-6580-4a88-9cfd-26a73894ae50" name="Changes" comment="Refactor recipe page to utilize context for Supabase client and session management">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/+page.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/user/[username]/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/user/[username]/+page.svelte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/createrecipe/+page.server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/createrecipe/+page.server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/createrecipe/+page.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/createrecipe/+page.svelte" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +72,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765192629610</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Refactor recipe page to utilize context for Supabase client and session management">
+      <option name="closed" value="true" />
+      <created>1765193214333</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1765193214333</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -91,6 +99,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Enhance favorites and saved recipes management with context sharing and improved session handling&#10;&#10;(cherry picked from commit fb9640bae798690a49f7237ec7d45260de54d620)" />
+    <MESSAGE value="Refactor recipe page to utilize context for Supabase client and session management" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor recipe page to utilize context for Supabase client and session management" />
   </component>
 </project>
