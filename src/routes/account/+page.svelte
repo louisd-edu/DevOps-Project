@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
     import AvatarUpload from "$lib/components/AvatarUpload.svelte";
+    import type {Profile} from "$lib/types/Profile";
 
 	// ...
 
@@ -19,7 +20,7 @@
 
 	// keep the above state in sync when `profile` or `form` changes
 	$effect(() => {
-		const p = profile as any;
+		const p = profile as Profile | null;
 		fullName = form?.fullName ?? profile?.full_name ?? ''
 		username = form?.username ?? profile?.username ?? ''
 		website = form?.website ?? profile?.website ?? ''
