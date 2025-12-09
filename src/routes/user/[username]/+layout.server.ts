@@ -21,6 +21,13 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     .select("*")
     .eq("user_id", profile.id);
 
+  // Fetch user XP data
+  const { data: userXP } = await supabase
+    .from("user_xp")
+    .select("total_xp")
+    .eq("user_id", profile.id)
+    .single();
+
   const avatar = await prepareImageUrls(profile.avatar_url, "avatars");
 
   // Check if viewer is the profile owner
@@ -31,5 +38,6 @@ export const load: LayoutServerLoad = async ({ locals, params }) => {
     avatar,
     myrecipes: myrecipes ?? [],
     isOwner,
+    userXP: userXP ?? { total_xp: 0 },
   };
 };

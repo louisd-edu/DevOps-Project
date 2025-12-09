@@ -1,12 +1,51 @@
 <script lang="ts">
-
-    import {goto} from "$app/navigation";
-    import { page } from '$app/stores'
+    import { goto } from "$app/navigation";
+    import { page } from '$app/stores';
+    import { getContext, onMount } from 'svelte';
+    import { getXPProgress } from '$lib/xpHelpers';
+    import type { SupabaseClient } from '@supabase/supabase-js';
 
     let { data, children } = $props();
     let profile = $derived(data.profile);
     let avatar = $derived(data.avatar);
     let isOwner = $derived(data.isOwner);
+
+    // Get supabase from context for realtime subscription
+    const supabase = getContext<SupabaseClient>('supabase');
+
+    // Reactive XP state
+    let userXP = $state(data.userXP ?? { total_xp: 0 });
+
+    // Sync with server data when it changes
+    $effect(() => {
+        if (data.userXP) {
+            userXP = data.userXP;
+        }
+    });
+
+    // Subscribe to XP changes for this profile
+    onMount(() => {
+        const profileId = profile?.id;
+        if (!profileId || !supabase) return;
+
+        const xpChannel = supabase
+            .channel(`profile-xp-${profileId}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'user_xp',
+                filter: `user_id=eq.${profileId}`
+            }, (payload: { new?: { total_xp?: number } }) => {
+                if (payload.new && typeof payload.new.total_xp === 'number') {
+                    userXP = { total_xp: payload.new.total_xp };
+                }
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(xpChannel);
+        };
+    });
 
     function go(route: string) {
         // eslint-disable-next-line svelte/no-navigation-without-resolve
@@ -20,13 +59,11 @@
     const isLiked = $derived(pathname.startsWith(`${base}/liked`))
     const isSaved = $derived(pathname.startsWith(`${base}/saved`))
 
-    // Calculate level percentage (progress within current level)
-    let levelPct = $derived.by(() => {
-        const n = Number(profile?.level ?? 0);
-        return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n % 100))) : 0;
-    });
-
-    let level = $derived(Math.trunc(Number(profile?.level ?? 0) / 100));
+    // Calculate level from XP
+    const xpProgress = $derived(getXPProgress(userXP?.total_xp ?? 0));
+    let levelPct = $derived(xpProgress.progressPercent);
+    let level = $derived(xpProgress.currentLevel);
+    let totalXP = $derived(xpProgress.totalXP);
 
 </script>
 
@@ -46,7 +83,7 @@
                 <div class="font-bold text-4xl text-neutral-900 dark:text-neutral-50">{profile?.displayname}</div>
                 <div class="text-neutral-700 dark:text-neutral-300 text-lg">@{profile?.username}</div>
             </div>
-            <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2 max-[540px]:mt-0 font-medium">Level {level} • {levelPct}% to next level</div>
+            <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2 max-[540px]:mt-0 font-medium">Level {level} • {totalXP} XP • {levelPct}% to next level</div>
             <div class="max-[540px]:hidden">
                 <form method="POST" action="/account?/signout">
                     <button type="submit" class="underline text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors">Log out</button>
@@ -74,7 +111,7 @@
 <div class="mt-5 mb-4 flex gap-3 max-[540px]:flex-col">
     <button
         class="px-6 py-3 rounded-full bg-primary-500 dark:bg-primary-600 text-white font-semibold shadow-md hover:bg-primary-600 dark:hover:bg-primary-700 transition-all hover:shadow-lg ring-2 ring-primary-600 dark:ring-primary-400 flex items-center justify-center gap-2"
-        onclick={() => go('/upload')}
+        onclick={() => go('/createrecipe')}
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
