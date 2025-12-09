@@ -85,7 +85,8 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
     // Fetch all comments for this recipe with profile info
     const { data: commentsData, error: commentsError } = await supabase
       .from("comments")
-      .select(`
+      .select(
+        `
         *,
         profiles!user_id (
           id,
@@ -94,7 +95,8 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
           level,
           displayname
         )
-      `)
+      `,
+      )
       .eq("recipe_id", slug)
       .order("created_at", { ascending: true });
 
@@ -115,7 +117,10 @@ export const load: PageServerLoad = async ({ params, locals, url }) => {
 
       if (likesData) {
         for (const like of likesData) {
-          likeCounts.set(like.comment_id, (likeCounts.get(like.comment_id) || 0) + 1);
+          likeCounts.set(
+            like.comment_id,
+            (likeCounts.get(like.comment_id) || 0) + 1,
+          );
           if (userId && like.user_id === userId) {
             userLikes.add(like.comment_id);
           }
@@ -217,7 +222,8 @@ export const actions: Actions = {
 
     const formData = await request.formData();
     const content = (formData.get("content") as string)?.trim();
-    const parentCommentId = (formData.get("parent_comment_id") as string) || null;
+    const parentCommentId =
+      (formData.get("parent_comment_id") as string) || null;
 
     // Validation
     if (!content || content.length === 0) {
@@ -340,7 +346,8 @@ export const actions: Actions = {
 
     if (!isCommentOwner && !isRecipeOwner) {
       return fail(403, {
-        message: "You can only delete your own comments or comments on your recipes",
+        message:
+          "You can only delete your own comments or comments on your recipes",
       });
     }
 
@@ -392,12 +399,10 @@ export const actions: Actions = {
       return { success: true, action: "unliked" };
     } else {
       // Like
-      const { error } = await supabase
-        .from("comment_likes")
-        .insert({
-          comment_id: commentId,
-          user_id: session.user.id,
-        });
+      const { error } = await supabase.from("comment_likes").insert({
+        comment_id: commentId,
+        user_id: session.user.id,
+      });
 
       if (error) {
         console.error("Error liking comment:", error);
