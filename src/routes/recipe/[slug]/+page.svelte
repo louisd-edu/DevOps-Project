@@ -2,6 +2,7 @@
   import { Chip } from "$lib";
   import Avatar from "$lib/components/Avatar.svelte";
   import ShareButton from "$lib/components/ShareButton.svelte";
+  import CommentSection from "$lib/components/comments/CommentSection.svelte";
   import Icon from '@iconify/svelte';
   import { getContext } from 'svelte';
   import { goto } from '$app/navigation';
@@ -160,13 +161,10 @@
     </div>
 
     <!-- Comments Section -->
-    <div class="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-6 shadow-lg">
-      <h2 class="font-bold text-2xl mb-4 text-neutral-900 dark:text-neutral-50">Comments</h2>
-      <input
-        type="text"
-        placeholder="Add a comment..."
-        class="w-full px-3 py-2 rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
-      />
-    </div>
+    <CommentSection
+      recipeId={recipe.id}
+      initialComments={data.comments || []}
+      recipeOwnerId={recipe.user_id}
+    />
   {/if}
 </div>
