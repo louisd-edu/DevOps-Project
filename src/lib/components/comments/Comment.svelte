@@ -191,7 +191,7 @@
               return async () => {};
             }
             isDeleting = true;
-            return async ({ result, update }) => {
+            return async ({ update }) => {
               isDeleting = false;
               await update();
             };
