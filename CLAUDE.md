@@ -105,7 +105,7 @@ Directory structure:
 
 
 ### Build Run and Test Commands
-yarn svelte
+yarn check
 yarn lint
 yarn prettier
 yarn test:run

@@ -2,9 +2,13 @@
     import type { Profile } from '$lib/types/Recipe';
     import { goto } from '$app/navigation';
     import { prepareImageUrls } from '$lib/components/prepareImageUrls';
+    import { getXPProgress } from '$lib/xpHelpers';
     import yumlogo from '$lib/assets/yumlogo.png';
 
-    let { profile = null } = $props<{ profile?: Partial<Profile> | null }>();
+    let { profile = null, userXP = null } = $props<{
+        profile?: Partial<Profile> | null;
+        userXP?: { total_xp: number } | null;
+    }>();
 
     let avatarSrc: string | null = $state(null);
     $effect(() => {
@@ -27,14 +31,10 @@
         goto('/');
     }
 
-    let levelPct: number = $state(0);
-
-    $effect(() => {
-        const n = Number(profile?.level ?? 0);
-        levelPct = Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n % 100))) : 0;
-    });
-
-    let level: number = $derived(Math.trunc( Number(profile?.level ?? 0) / 100));
+    // Calculate level from XP
+    const xpProgress = $derived(getXPProgress(userXP?.total_xp ?? 0));
+    let levelPct = $derived(xpProgress.progressPercent);
+    let level = $derived(xpProgress.currentLevel);
 
 </script>
 
