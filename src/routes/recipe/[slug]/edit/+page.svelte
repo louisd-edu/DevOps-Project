@@ -170,10 +170,11 @@
 		tick().then(() => {
 			updateFades();
 			// Scroll to the selected area chip if one is selected
-			if (scroller && selectedArea) {
+			const area = selectedArea;
+			if (scroller && area) {
 				const chips = scroller.querySelectorAll('[aria-label]');
 				chips.forEach((chip) => {
-					if (chip.getAttribute('aria-label')?.includes(selectedArea)) {
+					if (chip.getAttribute('aria-label')?.includes(area)) {
 						chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 					}
 				});
