@@ -74,7 +74,7 @@
 <div class="mt-5 mb-4 flex gap-3 max-[540px]:flex-col">
     <button
         class="px-6 py-3 rounded-full bg-primary-500 dark:bg-primary-600 text-white font-semibold shadow-md hover:bg-primary-600 dark:hover:bg-primary-700 transition-all hover:shadow-lg ring-2 ring-primary-600 dark:ring-primary-400 flex items-center justify-center gap-2"
-        onclick={() => go('/upload')}
+        onclick={() => go('/createrecipe')}
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
