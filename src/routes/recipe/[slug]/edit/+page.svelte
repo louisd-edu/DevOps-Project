@@ -165,18 +165,29 @@
 		requestAnimationFrame(updateFades);
 	});
 
-	// Update fades when area changes
+	// Update fades when area changes and scroll to selected area
 	$effect(() => {
-		tick().then(() => updateFades());
+		tick().then(() => {
+			updateFades();
+			// Scroll to the selected area chip if one is selected
+			if (scroller && selectedArea) {
+				const chips = scroller.querySelectorAll('[aria-label]');
+				chips.forEach((chip) => {
+					if (chip.getAttribute('aria-label')?.includes(selectedArea)) {
+						chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+					}
+				});
+			}
+		});
 	});
 </script>
 
 <div class="container mx-auto max-w-4xl p-6">
-	<h1 class="mb-6 text-3xl font-bold">Edit Recipe</h1>
+	<h1 class="mb-6 text-3xl font-bold text-neutral-900 dark:text-neutral-50">Edit Recipe</h1>
 
 	{#if form?.message}
 		<div
-			class="mb-4 rounded border border-red-300 bg-red-50 p-4 text-red-700"
+			class="mb-4 rounded border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/30 p-4 text-red-700 dark:text-red-300"
 		>
 			{form.message}
 		</div>
@@ -189,8 +200,8 @@
 		class="space-y-6"
 	>
 		<!-- Recipe Image Upload -->
-		<div class="rounded-lg border border-slate-300 bg-white p-6">
-			<h2 class="mb-4 text-xl font-semibold">Recipe Image</h2>
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg">
+			<h2 class="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">Recipe Image</h2>
 			<RecipeImageUpload
 				{sb}
 				userId={data.recipe?.user_id ?? ""}
@@ -199,11 +210,11 @@
 		</div>
 
 		<!-- Basic Information -->
-		<div class="rounded-lg border border-slate-300 bg-white p-6 space-y-4">
-			<h2 class="mb-4 text-xl font-semibold">Basic Information</h2>
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg space-y-4">
+			<h2 class="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">Basic Information</h2>
 
 			<div>
-				<label for="recipeName" class="mb-1 block font-medium"
+				<label for="recipeName" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 					>Recipe Name <span class="text-red-500">*</span></label
 				>
 				<input
@@ -214,7 +225,7 @@
 					required
 					minlength="3"
 					maxlength="200"
-					class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-slate-200"
+					class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 					placeholder="e.g., Grandma's Chocolate Cake"
 				/>
 				{#if errors.recipeName}
@@ -223,7 +234,7 @@
 			</div>
 
 			<div>
-				<label for="cookingTime" class="mb-1 block font-medium"
+				<label for="cookingTime" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 					>Cooking Time (minutes) <span class="text-red-500">*</span></label
 				>
 				<input
@@ -234,7 +245,7 @@
 					required
 					min="1"
 					max="1440"
-					class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-slate-200"
+					class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 					placeholder="e.g., 45"
 				/>
 				{#if errors.cookingTime}
@@ -243,7 +254,7 @@
 			</div>
 
 			<div>
-				<div class="flex items-center gap-3 p-3 border border-slate-300 rounded bg-slate-50">
+				<div class="flex items-center gap-3 p-3 border border-neutral-300 dark:border-neutral-600 rounded bg-neutral-200 dark:bg-neutral-700">
 					<input
 						id="isPublic"
 						type="checkbox"
@@ -251,8 +262,8 @@
 						class="h-5 w-5"
 					/>
 					<label for="isPublic" class="cursor-pointer mb-0">
-						<span class="font-medium">Make this recipe public</span>
-						<span class="block text-slate-600 text-sm">
+						<span class="font-medium text-neutral-900 dark:text-neutral-50">Make this recipe public</span>
+						<span class="block text-neutral-600 dark:text-neutral-400 text-sm">
 							{#if isPublic}
 								Anyone can discover and view this recipe
 							{:else}
@@ -268,8 +279,8 @@
 		</div>
 
 		<!-- Cuisine Selection -->
-		<div class="rounded-lg border border-slate-300 bg-white p-6 space-y-4">
-			<h2 class="text-xl font-semibold">
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg space-y-4">
+			<h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
 				Cuisine <span class="text-red-500">*</span>
 			</h2>
 
@@ -277,7 +288,7 @@
 			{#if allBroaderAreas.length}
 				<div class="relative -mb-2">
 					<div
-						class="flex overflow-x-auto items-center gap-2 pb-2 pr-6"
+						class="flex overflow-x-auto items-center gap-3 pb-2 pr-6"
 						style="scrollbar-gutter: stable both-edges;"
 						bind:this={scroller}
 						onscroll={updateFades}
@@ -295,14 +306,12 @@
 					</div>
 					{#if showLeftFade}
 						<div
-							class="pointer-events-none absolute left-0 top-0 h-full w-10"
-							style="background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));"
+							class="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-neutral-100 dark:from-neutral-800 to-transparent"
 						></div>
 					{/if}
 					{#if showRightFade}
 						<div
-							class="pointer-events-none absolute right-0 top-0 h-full w-10"
-							style="background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));"
+							class="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-neutral-100 dark:from-neutral-800 to-transparent"
 						></div>
 					{/if}
 				</div>
@@ -310,7 +319,7 @@
 
 			<!-- Cuisines for Selected Area (Wrapped) -->
 			{#if cuisinesForSelectedArea.length}
-				<div class="flex flex-wrap items-center gap-2">
+				<div class="flex flex-wrap items-center gap-3 mt-4">
 					{#each cuisinesForSelectedArea as cuisine (cuisine.name)}
 						<Chip
 							background={selectedCuisine === cuisine.name
@@ -325,11 +334,11 @@
 					{/each}
 				</div>
 			{:else if !selectedArea}
-				<p class="text-slate-500 text-sm">
+				<p class="text-neutral-500 dark:text-neutral-400 text-sm mt-4">
 					Select a region above to see available cuisines
 				</p>
 			{:else}
-				<p class="text-slate-500 text-sm">
+				<p class="text-neutral-500 dark:text-neutral-400 text-sm mt-4">
 					No cuisines available for this region
 				</p>
 			{/if}
@@ -340,19 +349,19 @@
 		</div>
 
 		<!-- Method Steps -->
-		<div class="rounded-lg border border-slate-300 bg-white p-6 space-y-4">
-			<h2 class="mb-4 text-xl font-semibold">
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg space-y-4">
+			<h2 class="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">
 				Cooking Instructions <span class="text-red-500">*</span>
 			</h2>
 			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 			{#each methodSteps as _, index (index)}
 				<div class="flex gap-2">
-					<div class="flex-shrink-0 pt-2 text-slate-500">
+					<div class="flex-shrink-0 pt-2 text-neutral-500 dark:text-neutral-400">
 						{index + 1}.
 					</div>
 					<textarea
 						bind:value={methodSteps[index]}
-						class="flex-1 rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-slate-200"
+						class="flex-1 rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 						placeholder="Describe this step..."
 						rows="2"
 					></textarea>
@@ -360,7 +369,7 @@
 						<button
 							type="button"
 							onclick={() => removeMethodStep(index)}
-							class="flex-shrink-0 rounded bg-red-100 px-3 py-2 text-red-700 hover:bg-red-200"
+							class="flex-shrink-0 rounded bg-red-100 dark:bg-red-900/50 px-3 py-2 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
 						>
 							Remove
 						</button>
@@ -370,7 +379,7 @@
 			<button
 				type="button"
 				onclick={addMethodStep}
-				class="rounded bg-slate-200 px-4 py-2 hover:bg-slate-300"
+				class="rounded bg-neutral-200 dark:bg-neutral-700 px-4 py-2 text-neutral-900 dark:text-neutral-50 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
 			>
 				+ Add Step
 			</button>
@@ -380,8 +389,8 @@
 		</div>
 
 		<!-- Ingredients List -->
-		<div class="rounded-lg border border-slate-300 bg-white p-6 space-y-4">
-			<h2 class="mb-4 text-xl font-semibold">
+		<div class="rounded-lg bg-neutral-100 dark:bg-neutral-800 p-6 shadow-lg space-y-4">
+			<h2 class="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">
 				Ingredients <span class="text-red-500">*</span>
 			</h2>
 
@@ -389,15 +398,15 @@
 				<div class="space-y-2">
 					{#each ingredients as ingredient, index (index)}
 						<div
-							class="flex items-center justify-between rounded border border-slate-200 bg-slate-50 p-3"
+							class="flex items-center justify-between rounded border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 p-3"
 						>
 							<div class="flex-1">
-								<span class="font-medium">{ingredient.name}</span>
-								<span class="text-slate-600">
+								<span class="font-medium text-neutral-900 dark:text-neutral-50">{ingredient.name}</span>
+								<span class="text-neutral-600 dark:text-neutral-400">
 									- {ingredient.quantity}
 									{ingredient.unit}
 								</span>
-								<span class="text-sm text-slate-500 ml-2">
+								<span class="text-sm text-neutral-500 dark:text-neutral-400 ml-2">
 									({Math.round(ingredient.calories * ingredient.quantity)} cal,
 									{(ingredient.protein * ingredient.quantity).toFixed(1)}g
 									protein)
@@ -406,7 +415,7 @@
 							<button
 								type="button"
 								onclick={() => removeIngredient(index)}
-								class="rounded bg-red-100 px-3 py-1 text-sm text-red-700 hover:bg-red-200"
+								class="rounded bg-red-100 dark:bg-red-900/50 px-3 py-1 text-sm text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
 							>
 								Remove
 							</button>
@@ -415,7 +424,7 @@
 
 					<!-- Totals -->
 					<div
-						class="rounded border-2 border-teal-300 bg-teal-50 p-4 font-semibold"
+						class="rounded border-2 border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 p-4 font-semibold text-neutral-900 dark:text-neutral-50"
 					>
 						<div class="flex justify-between">
 							<span>Total Nutrition:</span>
@@ -427,7 +436,7 @@
 					</div>
 				</div>
 			{:else}
-				<p class="text-slate-500">
+				<p class="text-neutral-500 dark:text-neutral-400">
 					No ingredients added yet. Click the button below to add ingredients.
 				</p>
 			{/if}
@@ -435,7 +444,7 @@
 			<button
 				type="button"
 				onclick={() => (showIngredientModal = true)}
-				class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700"
+				class="rounded-lg bg-accent-500 dark:bg-accent-600 px-4 py-2 text-white font-medium hover:bg-accent-600 dark:hover:bg-accent-700 transition-colors shadow-lg"
 			>
 				+ Add Ingredient
 			</button>
@@ -459,13 +468,13 @@
 			<button
 				type="submit"
 				disabled={loading || !isFormValid}
-				class="rounded bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+				class="rounded-lg bg-primary-500 dark:bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-600 dark:hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 shadow-lg active:scale-95"
 			>
 				{loading ? "Updating Recipe..." : "Update Recipe"}
 			</button>
 			<a
 				href="/"
-				class="rounded bg-slate-200 px-6 py-3 font-semibold hover:bg-slate-300"
+				class="rounded-lg bg-neutral-200 dark:bg-neutral-700 px-6 py-3 font-medium text-neutral-900 dark:text-neutral-50 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
 			>
 				Cancel
 			</a>

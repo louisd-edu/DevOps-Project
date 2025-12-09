@@ -167,7 +167,7 @@
 		<!-- Modal Content -->
 		<div class="modal-content" role="presentation" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
 			<div class="modal-header">
-				<h2 class="text-2xl font-bold">Add Ingredient</h2>
+				<h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-50">Add Ingredient</h2>
 				<button
 					type="button"
 					class="close-button"
@@ -203,7 +203,7 @@
 				{#if !isAddingNew}
 					<!-- Search Existing Ingredients -->
 					<div class="mb-4">
-						<label for="ingredient-search" class="mb-1 block font-medium"
+						<label for="ingredient-search" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 							>Search Ingredients</label
 						>
 						<input
@@ -211,54 +211,50 @@
 							type="text"
 							bind:value={searchQuery}
 							placeholder="Type to search..."
-							class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+							class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 						/>
 					</div>
 
 					<!-- Search Results -->
-					{#if searchQuery && !selectedIngredient}
+					{#if searchQuery}
 						<div class="mb-4 max-h-48 overflow-y-auto">
 							{#if filteredIngredients.length > 0}
-								<div class="space-y-1">
+								<div class="space-y-2">
 									{#each filteredIngredients as ingredient (ingredient.name)}
 										<button
 											type="button"
-											class="result-item"
+											class="result-item {selectedIngredient?.name === ingredient.name ? 'selected' : ''}"
 											onclick={() => selectIngredient(ingredient)}
 										>
-											<div class="font-medium">{ingredient.name}</div>
-											<div class="text-sm text-slate-500">
-												Per {ingredient.unit}: {ingredient.calories} cal, {ingredient.protein}g
-												protein
+											<div class="flex items-center justify-between">
+												<div class="flex-1">
+													<div class="font-medium text-neutral-900 dark:text-neutral-50">{ingredient.name}</div>
+													<div class="text-sm text-neutral-500 dark:text-neutral-400">
+														Per {ingredient.unit}: {ingredient.calories} cal, {ingredient.protein}g
+														protein
+													</div>
+												</div>
+												{#if selectedIngredient?.name === ingredient.name}
+													<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 dark:text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+													</svg>
+												{/if}
 											</div>
 										</button>
 									{/each}
 								</div>
 							{:else}
-								<p class="text-slate-500">
+								<p class="text-neutral-500 dark:text-neutral-400">
 									No ingredients found. Try adding a new one!
 								</p>
 							{/if}
-						</div>
-					{/if}
-
-					<!-- Selected Ingredient Display -->
-					{#if selectedIngredient}
-						<div
-							class="mb-4 rounded border border-teal-300 bg-teal-50 p-3"
-						>
-							<div class="font-semibold">{selectedIngredient.name}</div>
-							<div class="text-sm text-slate-600">
-								Per {selectedIngredient.unit}: {selectedIngredient.calories} cal, {selectedIngredient.protein}g
-								protein
-							</div>
 						</div>
 					{/if}
 				{:else}
 					<!-- Add New Ingredient Form -->
 					<div class="space-y-4 mb-4">
 						<div>
-							<label for="new-ingredient-name" class="mb-1 block font-medium"
+							<label for="new-ingredient-name" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 								>Ingredient Name <span class="text-red-500">*</span></label
 							>
 							<input
@@ -266,31 +262,31 @@
 								type="text"
 								bind:value={newIngredientName}
 								placeholder="e.g., Chicken Breast"
-								class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+								class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 							/>
 						</div>
 
 						<div>
-							<label for="new-unit" class="mb-1 block font-medium"
+							<label for="new-unit" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 								>Unit <span class="text-red-500">*</span></label
 							>
 							<select
 								id="new-unit"
 								bind:value={unit}
-								class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+								class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 							>
 								{#each UNITS as unitOption (unitOption)}
 									<option value={unitOption}>{unitOption}</option>
 								{/each}
 							</select>
-							<p class="mt-1 text-xs text-slate-500">
+							<p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
 								Choose the standard unit for measuring this ingredient
 							</p>
 						</div>
 
 						<div class="grid grid-cols-2 gap-4">
 							<div>
-								<label for="new-calories" class="mb-1 block font-medium"
+								<label for="new-calories" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 									>Calories (per {unit}) <span class="text-red-500">*</span
 									></label
 								>
@@ -301,12 +297,12 @@
 									min="0"
 									step="0.1"
 									placeholder="165"
-									class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+									class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 								/>
 							</div>
 
 							<div>
-								<label for="new-protein" class="mb-1 block font-medium"
+								<label for="new-protein" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 									>Protein (g per {unit}) <span class="text-red-500">*</span
 									></label
 								>
@@ -317,7 +313,7 @@
 									min="0"
 									step="0.1"
 									placeholder="31"
-									class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+									class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 								/>
 							</div>
 						</div>
@@ -327,7 +323,7 @@
 				<!-- Quantity (Always visible when ingredient selected or adding new) -->
 				{#if selectedIngredient || isAddingNew}
 					<div class="mb-4">
-						<label for="quantity" class="mb-1 block font-medium"
+						<label for="quantity" class="mb-1 block font-medium text-neutral-900 dark:text-neutral-50"
 							>Quantity ({unit}) <span class="text-red-500">*</span></label
 						>
 						<input
@@ -337,16 +333,16 @@
 							min="0.1"
 							step="0.1"
 							placeholder="e.g., 250"
-							class="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring focus:ring-teal-200"
+							class="w-full rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 px-3 py-2 text-neutral-900 dark:text-neutral-50 placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
 						/>
 					</div>
 
 					<!-- Nutrition Preview -->
-					<div class="rounded border border-slate-300 bg-slate-50 p-3 mb-4">
-						<div class="text-sm font-medium text-slate-700">
+					<div class="rounded border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 p-3 mb-4">
+						<div class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
 							Total for this quantity:
 						</div>
-						<div class="text-lg font-semibold text-teal-700">
+						<div class="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
 							{Math.round(totalCalories)} calories, {totalProtein.toFixed(1)}g
 							protein
 						</div>
@@ -379,7 +375,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.5);
+		background-color: rgba(0, 0, 0, 0.7);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -388,7 +384,8 @@
 	}
 
 	.modal-content {
-		background: white;
+		background: rgb(var(--color-neutral-100));
+		outline: 2px solid white;
 		border-radius: 12px;
 		max-width: 600px;
 		width: 100%;
@@ -399,12 +396,25 @@
 			0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	}
 
+	@media (prefers-color-scheme: dark) {
+		.modal-content {
+			background: rgb(var(--color-neutral-800));
+			outline-color: white;
+		}
+	}
+
 	.modal-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 1.5rem;
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid rgb(var(--color-neutral-300));
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.modal-header {
+			border-bottom-color: rgb(var(--color-neutral-600));
+		}
 	}
 
 	.close-button {
@@ -413,17 +423,24 @@
 		font-size: 2rem;
 		line-height: 1;
 		cursor: pointer;
-		color: #6b7280;
+		color: rgb(var(--color-neutral-500));
 		padding: 0;
 		width: 2rem;
 		height: 2rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		transition: color 0.2s;
 	}
 
 	.close-button:hover {
-		color: #374151;
+		color: rgb(var(--color-neutral-900));
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.close-button:hover {
+			color: rgb(var(--color-neutral-50));
+		}
 	}
 
 	.modal-body {
@@ -437,72 +454,167 @@
 		justify-content: flex-end;
 		gap: 0.75rem;
 		padding: 1.5rem;
-		border-top: 1px solid #e5e7eb;
+		border-top: 1px solid rgb(var(--color-neutral-300));
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.modal-footer {
+			border-top-color: rgb(var(--color-neutral-600));
+		}
 	}
 
 	.mode-button {
 		flex: 1;
 		padding: 0.5rem 1rem;
-		border: 2px solid #d1d5db;
-		background: white;
+		border: 2px solid rgb(var(--color-neutral-300));
+		background: rgba(0, 0, 0, 0.9);
+		color: white;
 		border-radius: 8px;
 		cursor: pointer;
 		font-weight: 500;
 		transition: all 0.2s;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.mode-button {
+			background: rgba(0, 0, 0, 0.9);
+			color: white;
+			border-color: rgb(var(--color-neutral-500));
+		}
 	}
 
 	.mode-button.active {
-		background: #0f766e;
-		color: white;
-		border-color: #0f766e;
+		background: rgba(255, 255, 255, 0.95);
+		color: rgba(0, 0, 0, 0.9);
+		border-color: rgba(255, 255, 255, 0.95);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.mode-button.active {
+			background: rgba(255, 255, 255, 0.95);
+			color: rgba(0, 0, 0, 0.9);
+			border-color: rgba(255, 255, 255, 0.95);
+		}
 	}
 
 	.mode-button:hover:not(.active) {
-		border-color: #0f766e;
-		color: #0f766e;
+		border-color: rgb(var(--color-accent-500));
+		color: rgb(var(--color-accent-600));
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.mode-button:hover:not(.active) {
+			border-color: rgb(var(--color-accent-600));
+			color: rgb(var(--color-accent-500));
+		}
 	}
 
 	.result-item {
 		width: 100%;
 		text-align: left;
-		padding: 0.75rem;
-		border: 1px solid #e5e7eb;
-		border-radius: 6px;
-		background: white;
+		padding: 1rem;
+		border: 2px solid rgb(var(--color-neutral-300));
+		border-radius: 8px;
+		background: rgb(var(--color-neutral-100));
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all 0.2s ease;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 
-	.result-item:hover {
-		border-color: #0f766e;
-		background: #f0fdfa;
+	@media (prefers-color-scheme: dark) {
+		.result-item {
+			border-color: rgb(var(--color-neutral-600));
+			background: rgb(var(--color-neutral-700));
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+		}
+	}
+
+	.result-item:hover:not(.selected) {
+		border-color: rgb(var(--color-accent-500));
+		background: rgb(var(--color-accent-50));
+		box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+		transform: translateY(-2px);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.result-item:hover:not(.selected) {
+			border-color: rgb(var(--color-accent-400));
+			background: rgb(var(--color-neutral-600));
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+		}
+	}
+
+	.result-item.selected {
+		border-color: rgb(var(--color-accent-500));
+		background: rgb(var(--color-accent-100));
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.result-item.selected {
+			border-color: rgb(var(--color-accent-400));
+			background: rgb(var(--color-accent-900));
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+		}
 	}
 
 	.cancel-button {
 		padding: 0.6rem 1.2rem;
-		border: 1px solid #d1d5db;
-		background: white;
+		border: 1px solid rgb(var(--color-neutral-300));
+		background: rgb(var(--color-neutral-200));
+		color: rgb(var(--color-neutral-900));
 		border-radius: 8px;
 		cursor: pointer;
 		font-weight: 500;
+		transition: background-color 0.2s;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.cancel-button {
+			background: rgb(var(--color-neutral-700));
+			color: rgb(var(--color-neutral-50));
+			border-color: rgb(var(--color-neutral-600));
+		}
 	}
 
 	.cancel-button:hover {
-		background: #f3f4f6;
+		background: rgb(var(--color-neutral-300));
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.cancel-button:hover {
+			background: rgb(var(--color-neutral-600));
+		}
 	}
 
 	.add-button {
 		padding: 0.6rem 1.2rem;
-		background: #0f766e;
+		background: rgb(var(--color-accent-500));
 		color: white;
 		border: none;
 		border-radius: 8px;
 		cursor: pointer;
 		font-weight: 500;
+		transition: background-color 0.2s;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.add-button {
+			background: rgb(var(--color-accent-600));
+		}
 	}
 
 	.add-button:hover:not(:disabled) {
-		background: #115e59;
+		background: rgb(var(--color-accent-600));
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.add-button:hover:not(:disabled) {
+			background: rgb(var(--color-accent-700));
+		}
 	}
 
 	.add-button:disabled {
