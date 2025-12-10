@@ -54,7 +54,7 @@
 
 <div class="flex gap-3 py-4" style="margin-left: {depth > 0 ? depth * 2 : 0}rem">
   <div class="flex-shrink-0">
-    <Avatar url={comment.profiles?.avatar_url} size="h-10 w-10" />
+    <Avatar url={comment.profiles?.avatar_url} seed={comment.profiles?.username ?? comment.user_id ?? 'user'} size="h-10 w-10" />
   </div>
 
   <div class="flex-1 min-w-0">

@@ -106,7 +106,7 @@
 
         </div>
         <div class="flex items-center gap-2 leading-tight cursor-pointer hover:opacity-75 transition-opacity" onclick={goToProfile} onkeydown={(e) => e.key === 'Enter' && goToProfile(e)} role="button" tabindex="0">
-            <Avatar url={recipe.profiles.avatar_url} size="h-12 w-12 sm:h-12 sm:w-12" />
+            <Avatar url={recipe.profiles.avatar_url} seed={recipe.profiles.username ?? recipe.profiles.id?.toString() ?? 'user'} size="h-12 w-12 sm:h-12 sm:w-12" />
             <div>
                 <div class="font-medium text-base sm:text-lg text-neutral-900 dark:text-neutral-50">{recipe.profiles.username}</div>
                 <div class="text-neutral-500 dark:text-neutral-400 text-sm">Beginner Cook</div>
