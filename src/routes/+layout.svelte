@@ -65,6 +65,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+    <title>YUMLOG</title>
 </svelte:head>
 
 <nav>
