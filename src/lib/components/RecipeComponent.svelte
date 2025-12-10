@@ -10,6 +10,15 @@
     import {prepareImageUrls} from "$lib/components/prepareImageUrls";
     import { goto } from '$app/navigation';
 
+    function getSkillLevelTitle(level: number | null): string {
+        if (level === null || level <= 0) return 'Beginner Cook';
+        if (level <= 2) return 'Beginner Cook';
+        if (level <= 4) return 'Home Cook';
+        if (level <= 6) return 'Skilled Cook';
+        if (level <= 9) return 'Expert Chef';
+        return 'Master Chef';
+    }
+
     let { recipe, showPrivacyBadge = false } = $props<{ recipe: Recipe; showPrivacyBadge?: boolean }>();
 
     let image = $state<string | null>(null);
@@ -109,7 +118,7 @@
             <Avatar url={recipe.profiles.avatar_url} seed={recipe.profiles.username ?? recipe.profiles.id?.toString() ?? 'user'} size="h-12 w-12 sm:h-12 sm:w-12" />
             <div>
                 <div class="font-medium text-base sm:text-lg text-neutral-900 dark:text-neutral-50">{recipe.profiles.username}</div>
-                <div class="text-neutral-500 dark:text-neutral-400 text-sm">Beginner Cook</div>
+                <div class="text-neutral-500 dark:text-neutral-400 text-sm">{getSkillLevelTitle(recipe.profiles.level)}</div>
             </div>
         </div>
     </div>
