@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/yumlogo.svg';
 	import { invalidate } from '$app/navigation'
  	import { onMount, setContext } from 'svelte'
     import NavProfile from "$lib/components/NavProfile.svelte";
