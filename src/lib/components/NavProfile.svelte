@@ -2,6 +2,7 @@
     import type { Profile } from '$lib/types/Recipe';
     import { goto } from '$app/navigation';
     import { prepareImageUrls } from '$lib/components/prepareImageUrls';
+    import { generateAvatar } from '$lib/utils/generateAvatar';
     import { getXPProgress } from '$lib/xpHelpers';
     import yumlogo from '$lib/assets/yumlogo.png';
 
@@ -13,9 +14,14 @@
     let avatarSrc: string | null = $state(null);
     $effect(() => {
         const url = profile?.avatar_url ?? null;
-        prepareImageUrls(url, 'avatars').then((result) => {
-            avatarSrc = result;
-        });
+        if (url) {
+            prepareImageUrls(url, 'avatars').then((result) => {
+                avatarSrc = result;
+            });
+        } else {
+            const seed = profile?.username ?? profile?.id?.toString() ?? 'user';
+            avatarSrc = generateAvatar(seed);
+        }
     });
 
     function goUser() {
@@ -63,11 +69,9 @@
               <span class="text-xs text-neutral-900/70 dark:text-neutral-900/80 font-medium">{level}</span>
             </div>
           </div>
-        {#if avatarSrc}
-            <button class="transition-transform hover:scale-105" onclick={goUser}>
+        <button class="transition-transform hover:scale-105" onclick={goUser}>
               <img src={avatarSrc} alt={profile.username ?? 'avatar'} class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ring-neutral-900/10" />
             </button>
-        {/if}
       {:else}
         <button type="button" class="text-sm md:text-base text-neutral-900 hover:text-neutral-950 dark:text-neutral-900 dark:hover:text-neutral-950 font-medium transition-colors" onclick={goAuth}>Sign in</button>
       {/if}

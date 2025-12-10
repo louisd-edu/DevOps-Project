@@ -3,11 +3,13 @@
     import { page } from '$app/stores';
     import { getContext, onMount } from 'svelte';
     import { getXPProgress } from '$lib/xpHelpers';
+    import { generateAvatar } from '$lib/utils/generateAvatar';
     import type { SupabaseClient } from '@supabase/supabase-js';
 
     let { data, children } = $props();
     let profile = $derived(data.profile);
-    let avatar = $derived(data.avatar);
+    let serverAvatar = $derived(data.avatar);
+    let avatar = $derived(serverAvatar ?? generateAvatar(profile?.username ?? profile?.id?.toString() ?? 'user'));
     let isOwner = $derived(data.isOwner);
 
     // Get supabase from context for realtime subscription

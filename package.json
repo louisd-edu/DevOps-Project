@@ -44,6 +44,8 @@
     "vitest": "^4.0.9"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.2.4",
+    "@dicebear/core": "^9.2.4",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.75.0",
     "cropperjs": "1.5.13",
