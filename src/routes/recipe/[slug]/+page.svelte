@@ -95,7 +95,7 @@
           </div>
 
           <div class="flex items-center gap-3 pt-2">
-            <Avatar url={recipe.profiles?.avatar_url} size="h-12 w-12" />
+            <Avatar url={recipe.profiles?.avatar_url} seed={recipe.profiles?.username} size="h-12 w-12" />
             <div>
               <div class="font-medium text-lg text-neutral-900 dark:text-neutral-50">{recipe.profiles?.username}</div>
               <div class="text-neutral-600 dark:text-neutral-400 text-sm">Recipe Creator</div>
