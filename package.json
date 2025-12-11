@@ -48,6 +48,7 @@
     "@dicebear/core": "^9.2.4",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.75.0",
+    "@vercel/analytics": "^1.6.1",
     "cropperjs": "1.5.13",
     "prettier": "^3.6.2",
     "yaml": "^2.8.2"
