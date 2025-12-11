@@ -4,7 +4,7 @@
 	import { invalidate } from '$app/navigation'
  	import { onMount, setContext } from 'svelte'
     import NavProfile from "$lib/components/NavProfile.svelte";
-
+	import { injectAnalytics } from '@vercel/analytics/sveltekit'
 
 	let { data, children } = $props()
   	const session = $derived(data.session)
@@ -21,6 +21,9 @@
             userXP = data.userXP;
         }
     });
+
+	injectAnalytics({ mode: 'auto' });
+
 
     // Expose supabase and session via context for children
     // Note: These warnings are expected - we intentionally capture the initial values
